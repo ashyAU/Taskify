@@ -1,6 +1,11 @@
 package com.example.remindme
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -73,65 +79,50 @@ fun StopwatchButtons(
     isStarted: Boolean,
     onStart: (Boolean) -> Unit
 ) {
+    val icon = if (isStarted) R.drawable.pause_filled else R.drawable.play_filled
+
     Row(
-        horizontalArrangement = Arrangement.SpaceAround
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     )
     {
-        Box(modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center)
-        {
-            FilledTonalIconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(60.dp)) {
-                Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
-            }
+        FilledTonalIconButton(onClick = {
+        }, modifier = Modifier.size(75.dp)) {
+            Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
         }
-        when (isStarted) {
-            true -> {
-                Box(modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center)
-                {
-                    FilledTonalIconButton(
-                        onClick = { onStart(!isStarted) },
-                        modifier = Modifier.size(width = 140.dp, height = 100.dp)
 
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.pause_filled),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(0.5f)
-                        )
-                    }
-                }
-            }
-
-            false -> {
-                Box(modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center)
-                {
-                    FilledTonalIconButton(
-                        onClick = { onStart(!isStarted) },
-                        modifier = Modifier.size(100.dp),
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.play_filled),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(0.5f)
-                        )
-                    }
-                }
-            }
-        }
-        AnimatedVisibility(
-            visible = isStarted,
-            enter = fadeIn(),
-            exit = fadeOut()
+        Box(
+            modifier = Modifier.animateContentSize(
+                animationSpec = tween(
+                    durationMillis = 1000,
+                    easing = FastOutLinearInEasing
+                )
+            )
         )
         {
-            Box(modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center)
-            {
-                FilledTonalIconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.Place, contentDescription = null)
-                }
+            FilledTonalIconButton(
+                onClick = { onStart(!isStarted) },
+                modifier = Modifier.size(
+                    width = if (isStarted) 160.dp else 110.dp, height = 110.dp
+                )
+
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(0.4f)
+                )
+            }
+        }
+        Box(modifier = Modifier.alpha(if (isStarted) 1f else 0f))
+        {
+            FilledTonalIconButton(
+                onClick = {},
+                modifier = Modifier
+                    .size(75.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Place, contentDescription = null)
             }
         }
     }

@@ -16,7 +16,7 @@
       </SelectionState>
       <SelectionState runConfigName="ParentComposable">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-09-24T12:58:29.494817200Z">
+        <DropdownSelection timestamp="2024-09-25T02:46:03.185651Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=3C231JEKB05748" />
