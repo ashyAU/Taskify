@@ -1,7 +1,10 @@
 package com.example.remindme
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,11 +13,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,10 +35,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.graphics.shapes.CornerRounding
+import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.pillStar
+import androidx.graphics.shapes.star
+import androidx.graphics.shapes.toPath
 import kotlinx.coroutines.delay
 import java.util.Locale
 import kotlin.time.Duration
@@ -50,20 +72,26 @@ fun StopwatchParent() {
     var isReset by rememberSaveable {
         mutableStateOf(false)
     }
+    var isLap by rememberSaveable {
+        mutableStateOf(false)
+    }
+    Timer(counter = counter, isStarted = isStarted)
 
     Column(
         Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.fillMaxWidth())
         StopWatchCounter(
             isStarted = isStarted,
             isReset = isReset,
             updateCount = { counter = it },
             onReset = { isReset = it })
 
-        // this is going to be the pretty print
-        Timer(counter = counter, isStarted = isStarted)
+        /*
+                StopwatchLaps(isLap = isLap, onLap = { isLap = it})
+        */
         StopwatchButtons(
             isStarted = isStarted,
             onStart = { isStarted = it },
@@ -81,7 +109,9 @@ fun StopwatchButtons(
     val icon = if (isStarted) R.drawable.pause_filled else R.drawable.play_filled
     val size by animateDpAsState(targetValue = if (isStarted) 160.dp else 110.dp, label = "")
     Row(
-        modifier = Modifier.fillMaxWidth().padding(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     )
@@ -204,18 +234,58 @@ fun Timer(
     }
     val formattedTime = String.format(
         locale = Locale.getDefault(),
-        "%02d : %02d : %02d",
+        "%02d:%02d:%02d",
         prettyTime.hour,
         prettyTime.minute,
         prettyTime.second,
+    )
+    val formattedMS = String.format(
+        locale = Locale.getDefault(),
+        format = ".%03d",
         prettyTime.millisecond
     )
-    Text(
-        text = formattedTime,
-        style = MaterialTheme.typography.displayMedium,
-        fontWeight = FontWeight.Normal
-    )
+
+    Row(modifier = Modifier.fillMaxWidth().padding(20.dp),
+        horizontalArrangement = Arrangement.Center)
+    {
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .clip(shape = CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+        )
+        {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center
+            )
+            {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.Bottom
+                )
+                {
+                    Text(
+                        text = formattedTime,
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Normal
+                    )
+                    Text(
+                        text = formattedMS,
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+
+            }
+
+        }
+    }
+
 }
+
+
 
 
 

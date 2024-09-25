@@ -2,6 +2,7 @@ package com.example.remindme
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
@@ -41,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +54,7 @@ import java.util.Calendar
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.Black, Color.White))
         setContent {
             ParentComposable()
         }
@@ -66,22 +68,21 @@ fun ParentComposable() {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                Text(text = navigationList[selectedIndex].label)
-            },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
-                    }
-                }
-
-            )
+        topBar = { TopAppBar(title = {
+            Text(text = navigationList[selectedIndex].label)
         },
+            actions = {
+                IconButton(onClick = { /*TODO*/ }, ) {
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                }
+            }
+
+            ) },
 
         content = { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                when (selectedIndex) {
+                when(selectedIndex)
+                {
                     0 -> AlarmParent()
                     1 -> TasksParent()
                     2 -> StopwatchParent()
@@ -93,7 +94,8 @@ fun ParentComposable() {
                 navigationList.forEachIndexed { index, item ->
                     NavigationBarItem(
                         icon = {
-                            if (selectedIndex == index) {
+                            if(selectedIndex == index)
+                            {
                                 Icon(
                                     painterResource(id = item.iconFilled),
                                     contentDescription = item.label
