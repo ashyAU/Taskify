@@ -277,14 +277,10 @@ fun Timer(
                         fontWeight = FontWeight.Normal
                     )
                 }
-
             }
-
         }
     }
-
 }
-
 
 
 
