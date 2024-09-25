@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,7 +53,7 @@ fun StopwatchParent() {
 
     Column(
         Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         StopWatchCounter(
@@ -80,7 +81,7 @@ fun StopwatchButtons(
     val icon = if (isStarted) R.drawable.pause_filled else R.drawable.play_filled
     val size by animateDpAsState(targetValue = if (isStarted) 160.dp else 110.dp, label = "")
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     )
@@ -97,7 +98,6 @@ fun StopwatchButtons(
             modifier = Modifier.size(
                 width = size, height = 110.dp
             )
-
         ) {
             Icon(
                 painter = painterResource(id = icon),
@@ -204,7 +204,7 @@ fun Timer(
     }
     val formattedTime = String.format(
         locale = Locale.getDefault(),
-        "%02d : %02d : %02d : %03d",
+        "%02d : %02d : %02d",
         prettyTime.hour,
         prettyTime.minute,
         prettyTime.second,
