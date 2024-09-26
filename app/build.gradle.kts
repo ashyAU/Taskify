@@ -61,6 +61,9 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.androidx.graphics.shapes)
+    implementation(libs.androidx.graphics.core)
+    implementation(libs.androidx.graphics.path)
+    implementation(libs.androidx.graphics.shapes)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

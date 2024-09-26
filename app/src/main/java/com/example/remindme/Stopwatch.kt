@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,23 +37,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposePath
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.graphics.shapes.CornerRounding
-import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.circle
-import androidx.graphics.shapes.pillStar
-import androidx.graphics.shapes.star
-import androidx.graphics.shapes.toPath
 import kotlinx.coroutines.delay
 import java.util.Locale
 import kotlin.time.Duration
@@ -88,14 +76,18 @@ fun StopwatchParent() {
             isReset = isReset,
             updateCount = { counter = it },
             onReset = { isReset = it })
-
-        /*
-                StopwatchLaps(isLap = isLap, onLap = { isLap = it})
-        */
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp),
+            contentAlignment = Alignment.Center)
+        {
+            MessageList(onLap = { isLap = it}, isLap = isLap)
+        }
         StopwatchButtons(
             isStarted = isStarted,
             onStart = { isStarted = it },
             onReset = { isReset = it },
+            onLap = { isLap = it }
         )
     }
 }
@@ -105,6 +97,7 @@ fun StopwatchButtons(
     isStarted: Boolean,
     onStart: (Boolean) -> Unit,
     onReset: (Boolean) -> Unit,
+    onLap: (Boolean) -> Unit
 ) {
     val icon = if (isStarted) R.drawable.pause_filled else R.drawable.play_filled
     val size by animateDpAsState(targetValue = if (isStarted) 160.dp else 110.dp, label = "")
@@ -137,7 +130,10 @@ fun StopwatchButtons(
         }
         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
         FilledTonalIconButton(
-            onClick = {},
+            onClick = {
+                // todo handle lap logic
+                onLap(true)
+            },
             modifier = Modifier
                 .size(75.dp)
                 .alpha(if (isStarted) 1f else 0f)
@@ -245,8 +241,12 @@ fun Timer(
         prettyTime.millisecond
     )
 
-    Row(modifier = Modifier.fillMaxWidth().padding(20.dp),
-        horizontalArrangement = Arrangement.Center)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp),
+        horizontalArrangement = Arrangement.Center
+    )
     {
         Box(
             modifier = Modifier
@@ -283,6 +283,41 @@ fun Timer(
 }
 
 
+@Composable
+fun MessageList(isLap: Boolean, onLap: (Boolean) -> Unit) {
+    val counter = mutableListOf<Int>()
+
+
+    when (isLap)
+    {
+        true ->{
+            val iteration = 0..100
+
+            iteration.forEach { it ->
+                counter.add(it)
+            }
+
+            Column(
+                modifier = Modifier.verticalScroll(
+                    enabled = true, state = ScrollState(0)
+                ).padding(15.dp)
+            ) {
+                counter.forEach {
+                    Text(text = "Lap $it:")
+                    Text(text = "00:00:00.000")
+                }
+            }
+        }
+
+        false -> {
+            // todo add logic for a false press
+        }
+    }
+
+
+
+
+}
 
 
 
