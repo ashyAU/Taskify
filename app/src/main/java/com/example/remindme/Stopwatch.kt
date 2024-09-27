@@ -48,6 +48,8 @@ import kotlin.time.ExperimentalTime
 @Preview(showBackground = true)
 @Composable
 fun StopwatchParent() {
+
+    // todo, add persistent storag for the state of the stopwatch button, as well as the timer value.
     val lapViewModel: LapViewModel = hiltViewModel()
     val laps by lapViewModel.allLaps.collectAsState(initial = emptyList())
 
@@ -84,10 +86,10 @@ fun StopwatchParent() {
 
 
         LazyColumn {
+
+            // todo, fix the formatting of the prettyprint
             items(laps) { lap ->
                 Text(" Lap ${lap.id}:  ${lap.time}")
-                // Optional: Add a delete button
-                // Button(onClick = { viewModel.deleteLap(lap) }) { Text("Delete") }
             }
         }
         StopwatchButtons(
@@ -222,11 +224,7 @@ fun Timer(
     prettyTime.second = ((totalMilliseconds / 1000) % 60).toLong()
     prettyTime.minute = ((totalMilliseconds / 60000) % 60).toLong()
     prettyTime.hour = ((totalMilliseconds / 3600000).toLong())
-
-
-
-
-
+    
     // region Timer Formatting
     LaunchedEffect(isStarted) {
         while (isStarted) {
@@ -302,25 +300,11 @@ fun Timer(
     }
     // endregion
 
-
+    // todo add the correct calculation for the time difference between the current lap and the previous lap.
+    // this may require using previous indexing for calculations unless NULL
     if (isLap)
     {
         lapViewModel.addLap(time = "$formattedTime$formattedMS")
         onLap(false)
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
