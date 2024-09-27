@@ -60,7 +60,15 @@ fun StopwatchParent() {
     var isReset by rememberSaveable {
         mutableStateOf(false)
     }
-    Timer(counter = counter, isStarted = isStarted)
+    var isLap by rememberSaveable {
+        mutableStateOf(false)
+    }
+    Timer(
+        counter = counter,
+        isStarted = isStarted,
+        lapViewModel = lapViewModel,
+        isLap = isLap,
+        onLap = { isLap = it })
 
     Column(
         Modifier.fillMaxSize(),
@@ -77,7 +85,7 @@ fun StopwatchParent() {
 
         LazyColumn {
             items(laps) { lap ->
-                Text("${ lap.id }")
+                Text(" Lap ${lap.id}:  ${lap.time}")
                 // Optional: Add a delete button
                 // Button(onClick = { viewModel.deleteLap(lap) }) { Text("Delete") }
             }
@@ -86,8 +94,8 @@ fun StopwatchParent() {
             isStarted = isStarted,
             onStart = { isStarted = it },
             onReset = { isReset = it },
-            counter = counter,
-            lapViewModel = lapViewModel
+            lapViewModel = lapViewModel,
+            onLap = { isLap = it }
         )
     }
 }
@@ -97,7 +105,7 @@ fun StopwatchButtons(
     isStarted: Boolean,
     onStart: (Boolean) -> Unit,
     onReset: (Boolean) -> Unit,
-    counter: Long,
+    onLap: (Boolean) -> Unit,
     lapViewModel: LapViewModel
 
 ) {
@@ -134,8 +142,7 @@ fun StopwatchButtons(
         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
         FilledTonalIconButton(
             onClick = {
-                lapViewModel.addLap(time = "$counter")
-                // todo handle the adding lap
+                onLap(true)
             },
             modifier = Modifier
                 .size(75.dp)
@@ -196,7 +203,11 @@ data class PrettyTime(
 @OptIn(ExperimentalTime::class)
 fun Timer(
     isStarted: Boolean,
-    counter: Long
+    counter: Long,
+    lapViewModel: LapViewModel,
+    isLap: Boolean,
+    onLap: (Boolean) -> Unit
+
 ) {
     val prettyTime = remember { PrettyTime(0, 0, 0, 0) }
 
@@ -212,6 +223,11 @@ fun Timer(
     prettyTime.minute = ((totalMilliseconds / 60000) % 60).toLong()
     prettyTime.hour = ((totalMilliseconds / 3600000).toLong())
 
+
+
+
+
+    // region Timer Formatting
     LaunchedEffect(isStarted) {
         while (isStarted) {
             delay(16)
@@ -243,7 +259,8 @@ fun Timer(
         format = ".%03d",
         prettyTime.millisecond
     )
-
+    // endregion
+    // region Timer Layout
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -282,6 +299,14 @@ fun Timer(
                 }
             }
         }
+    }
+    // endregion
+
+
+    if (isLap)
+    {
+        lapViewModel.addLap(time = "$formattedTime$formattedMS")
+        onLap(false)
     }
 }
 

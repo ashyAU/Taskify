@@ -50,7 +50,6 @@ interface LapDao {
     suspend fun resetLapId()
 }
 
-
 @Database(
     entities = [Lap::class],
     version = 1
@@ -75,8 +74,6 @@ abstract class LapDatabase : RoomDatabase() {
         }
     }
 }
-
-
 
 @Module
 @InstallIn(SingletonComponent::class)
