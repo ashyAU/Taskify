@@ -8,13 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -22,8 +20,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +37,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.RoomDatabase
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -76,12 +86,14 @@ fun StopwatchParent() {
             isReset = isReset,
             updateCount = { counter = it },
             onReset = { isReset = it })
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp),
-            contentAlignment = Alignment.Center)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp),
+            contentAlignment = Alignment.Center
+        )
         {
-            MessageList(onLap = { isLap = it}, isLap = isLap)
+            MessageList(onLap = { isLap = it }, isLap = isLap)
         }
         StopwatchButtons(
             isStarted = isStarted,
@@ -288,9 +300,8 @@ fun MessageList(isLap: Boolean, onLap: (Boolean) -> Unit) {
     val counter = mutableListOf<Int>()
 
 
-    when (isLap)
-    {
-        true ->{
+    when (isLap) {
+        true -> {
             val iteration = 0..100
 
             iteration.forEach { it ->
@@ -298,9 +309,11 @@ fun MessageList(isLap: Boolean, onLap: (Boolean) -> Unit) {
             }
 
             Column(
-                modifier = Modifier.verticalScroll(
-                    enabled = true, state = ScrollState(0)
-                ).padding(15.dp)
+                modifier = Modifier
+                    .verticalScroll(
+                        enabled = true, state = ScrollState(0)
+                    )
+                    .padding(15.dp)
             ) {
                 counter.forEach {
                     Text(text = "Lap $it:")
@@ -309,15 +322,57 @@ fun MessageList(isLap: Boolean, onLap: (Boolean) -> Unit) {
             }
         }
 
-        false -> {
-            // todo add logic for a false press
+        false -> {}
+    }
+}
+
+@Entity(tableName = "stopwatch")
+data class Lap(
+    @PrimaryKey val lap: Int,
+    @ColumnInfo val time: String
+)
+
+@Dao
+interface UserDao {
+    @Insert
+    suspend fun insertLap(lap: Lap)
+
+    @Query("SELECT * FROM stopwatch")
+    fun getAllLaps(): Flow<List<Lap>>
+}
+
+@Database(entities = [Lap::class], version = 1, exportSchema = false)
+abstract class LapDatabase : RoomDatabase() {
+    abstract fun itemDao(): UserDao
+}
+
+class DataViewModel(private val repository: UserDao) : ViewModel() {
+    private val _laps = MutableStateFlow<List<Lap>>(emptyList())
+    val laps: StateFlow<List<Lap>> = _laps
+
+    init {
+        viewModelScope.launch {
+            repository.getAllLaps().collect() { laps ->
+                _laps.value = laps
+            }
         }
     }
 
+    fun insertLap(lap: Lap) = viewModelScope.launch {
+        repository.insertLap(lap)
+    }
 
 
+    fun getAllLaps() = viewModelScope.launch {
+        val laps = repository.getAllLaps()
+        _laps.value = lapsg
+    }
 
 }
+
+
+
+
 
 
 
