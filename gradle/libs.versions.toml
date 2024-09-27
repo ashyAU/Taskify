@@ -1,7 +1,16 @@
 [versions]
+activityComposeVersion = "1.6.0"
 agp = "8.5.1"
+coreKtxVersion = "1.12.0"
+googleHiltAndroid = "2.45"
 graphicsShapes = "1.0.1"
-kotlin = "1.9.0"
+hiltAndroid = "2.x"
+hiltAndroidCompiler = "2.51.1"
+hiltAndroidVersion = "2.51.1"
+hiltCompiler = "2.45"
+hiltNavigationCompose = "1.2.0"
+hiltNavigationComposeVersion = "1.0.0"
+kotlin = "1.9.10"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -9,16 +18,32 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.4"
 activityCompose = "1.9.1"
 composeBom = "2024.04.01"
+lifecycleViewmodelCompose = "2.8.6"
+roomCompiler = "2.5.0"
+roomRuntime = "2.5.0"
 roomVersion = "2.6.1"
 
 [libraries]
+androidx-activity-compose-v160 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-ktx-v1120 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
 androidx-graphics-core = { module = "androidx.graphics:graphics-core", version.ref = "graphicsShapes" }
 androidx-graphics-path = { module = "androidx.graphics:graphics-path", version.ref = "graphicsShapes" }
 androidx-graphics-shapes = { module = "androidx.graphics:graphics-shapes", version.ref = "graphicsShapes" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-hilt-navigation-compose-v100 = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
+androidx-room-compiler-v250 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
+androidx-room-runtime-v250 = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
+hilt-android-v245 = { module = "com.google.dagger:hilt-android", version.ref = "googleHiltAndroid" }
+hilt-android-v2511 = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidVersion" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
+hilt-compiler-v245 = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

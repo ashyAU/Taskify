@@ -1,7 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.devtools.ksp")
+    kotlin("kapt")
+    id("dagger.hilt.android.plugin")
+    id("com.google.devtools.ksp") // KSP for annotation processing
+
 }
 
 android {
@@ -21,6 +24,12 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -30,10 +39,6 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -41,7 +46,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
@@ -54,9 +59,15 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-/*
-    ksp(libs.androidx.room.compiler)
-*/
+
+    implementation("com.google.dagger:hilt-android:2.48") // Hilt dependencies
+    kapt("com.google.dagger:hilt-compiler:2.48") // Hilt compiler for KAPT
+    implementation( libs.androidx.room.runtime.v250) // Room runtime
+    ksp (libs.androidx.room.compiler.v250) // Room compiler for KAPT
+    implementation( libs.androidx.hilt.navigation.compose.v100) // Hilt for Jetpack Compose
+
+    implementation(libs.androidx.activity.compose.v160) // For ViewModel support in Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)// Compose ViewModel support
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -81,4 +92,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
 
+}
+kapt {
+    correctErrorTypes = true
 }

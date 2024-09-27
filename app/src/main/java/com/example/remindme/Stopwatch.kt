@@ -1,7 +1,6 @@
 package com.example.remindme
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,12 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.FilledTonalIconButton
@@ -24,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,22 +37,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -63,6 +48,8 @@ import kotlin.time.ExperimentalTime
 @Preview(showBackground = true)
 @Composable
 fun StopwatchParent() {
+    val lapViewModel: LapViewModel = hiltViewModel()
+    val laps by lapViewModel.allLaps.collectAsState(initial = emptyList())
 
     var isStarted by rememberSaveable {
         mutableStateOf(false)
@@ -71,9 +58,6 @@ fun StopwatchParent() {
         mutableLongStateOf(0)
     }
     var isReset by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var isLap by rememberSaveable {
         mutableStateOf(false)
     }
     Timer(counter = counter, isStarted = isStarted)
@@ -90,11 +74,20 @@ fun StopwatchParent() {
             updateCount = { counter = it },
             onReset = { isReset = it })
 
+
+        LazyColumn {
+            items(laps) { lap ->
+                Text("${ lap.id }")
+                // Optional: Add a delete button
+                // Button(onClick = { viewModel.deleteLap(lap) }) { Text("Delete") }
+            }
+        }
         StopwatchButtons(
             isStarted = isStarted,
             onStart = { isStarted = it },
             onReset = { isReset = it },
-            onLap = { isLap = it }
+            counter = counter,
+            lapViewModel = lapViewModel
         )
     }
 }
@@ -104,7 +97,9 @@ fun StopwatchButtons(
     isStarted: Boolean,
     onStart: (Boolean) -> Unit,
     onReset: (Boolean) -> Unit,
-    onLap: (Boolean) -> Unit
+    counter: Long,
+    lapViewModel: LapViewModel
+
 ) {
     val icon = if (isStarted) R.drawable.pause_filled else R.drawable.play_filled
     val size by animateDpAsState(targetValue = if (isStarted) 160.dp else 110.dp, label = "")
@@ -119,6 +114,7 @@ fun StopwatchButtons(
         FilledTonalIconButton(onClick = {
             onReset(true)
             onStart(false)
+            lapViewModel.deleteAllLaps()
         }, modifier = Modifier.size(75.dp)) {
             Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
         }
@@ -138,8 +134,8 @@ fun StopwatchButtons(
         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
         FilledTonalIconButton(
             onClick = {
-                // todo handle lap logic
-                onLap(true)
+                lapViewModel.addLap(time = "$counter")
+                // todo handle the adding lap
             },
             modifier = Modifier
                 .size(75.dp)
