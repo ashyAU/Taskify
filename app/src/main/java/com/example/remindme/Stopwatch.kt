@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -46,6 +47,7 @@ import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -61,6 +63,7 @@ import kotlin.time.ExperimentalTime
 @Preview(showBackground = true)
 @Composable
 fun StopwatchParent() {
+
     var isStarted by rememberSaveable {
         mutableStateOf(false)
     }
@@ -86,15 +89,7 @@ fun StopwatchParent() {
             isReset = isReset,
             updateCount = { counter = it },
             onReset = { isReset = it })
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp),
-            contentAlignment = Alignment.Center
-        )
-        {
-            MessageList(onLap = { isLap = it }, isLap = isLap)
-        }
+
         StopwatchButtons(
             isStarted = isStarted,
             onStart = { isStarted = it },
@@ -295,80 +290,11 @@ fun Timer(
 }
 
 
-@Composable
-fun MessageList(isLap: Boolean, onLap: (Boolean) -> Unit) {
-    val counter = mutableListOf<Int>()
 
 
-    when (isLap) {
-        true -> {
-            val iteration = 0..100
-
-            iteration.forEach { it ->
-                counter.add(it)
-            }
-
-            Column(
-                modifier = Modifier
-                    .verticalScroll(
-                        enabled = true, state = ScrollState(0)
-                    )
-                    .padding(15.dp)
-            ) {
-                counter.forEach {
-                    Text(text = "Lap $it:")
-                    Text(text = "00:00:00.000")
-                }
-            }
-        }
-
-        false -> {}
-    }
-}
-
-@Entity(tableName = "stopwatch")
-data class Lap(
-    @PrimaryKey val lap: Int,
-    @ColumnInfo val time: String
-)
-
-@Dao
-interface UserDao {
-    @Insert
-    suspend fun insertLap(lap: Lap)
-
-    @Query("SELECT * FROM stopwatch")
-    fun getAllLaps(): Flow<List<Lap>>
-}
-
-@Database(entities = [Lap::class], version = 1, exportSchema = false)
-abstract class LapDatabase : RoomDatabase() {
-    abstract fun itemDao(): UserDao
-}
-
-class DataViewModel(private val repository: UserDao) : ViewModel() {
-    private val _laps = MutableStateFlow<List<Lap>>(emptyList())
-    val laps: StateFlow<List<Lap>> = _laps
-
-    init {
-        viewModelScope.launch {
-            repository.getAllLaps().collect() { laps ->
-                _laps.value = laps
-            }
-        }
-    }
-
-    fun insertLap(lap: Lap) = viewModelScope.launch {
-        repository.insertLap(lap)
-    }
 
 
-    fun getAllLaps() = viewModelScope.launch {
-        val laps = repository.getAllLaps()
-        _laps.value = lapsg
-    }
 
-}
 
 
 
