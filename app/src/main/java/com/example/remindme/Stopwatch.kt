@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import java.util.Locale
 import kotlin.time.Duration
@@ -66,6 +67,11 @@ fun StopwatchParent() {
     var isLap by rememberSaveable {
         mutableStateOf(false)
     }
+    var lastUpdatedTime by remember {
+        mutableStateOf<Long?>(null)
+
+    }
+
 
     Text(text = "$counter")
     LaunchedEffect(Unit) {
@@ -74,8 +80,8 @@ fun StopwatchParent() {
                 if (it != null) {
                     counter = it.counterValue
                     isStarted = it.isStarted
-                }
-                else{
+                    lastUpdatedTime = it.lastUpdatedTime
+                } else {
                     counter = 0
                 }
 
@@ -96,11 +102,22 @@ fun StopwatchParent() {
 
     counter?.let { it ->
         Timer(
-        counter = it,
-        isStarted = isStarted,
-        stopwatchViewModel = stopwatchViewModel,
-        isLap = isLap,
-        onLap = { isLap = it })
+            counter = it,
+            isStarted = isStarted,
+            stopwatchViewModel = stopwatchViewModel,
+            isLap = isLap,
+            onLap = { isLap = it })
+
+        lastUpdatedTime?.let { lastUpdate ->
+            StopWatchCounter(
+                isStarted = isStarted,
+                isReset = isReset,
+                updateCount = { counter = it },
+                onReset = { isReset = it },
+                counter = it,
+                lastUpdatedTime = lastUpdate
+            )
+        }
     }
 
     Column(
@@ -109,15 +126,7 @@ fun StopwatchParent() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.fillMaxWidth())
-        counter?.let { it ->
-            StopWatchCounter(
-                isStarted = isStarted,
-                isReset = isReset,
-                updateCount = { counter = it },
-                onReset = { isReset = it },
-                counter = it
-            )
-        }
+
 
 
         LazyColumn {
@@ -195,17 +204,17 @@ fun StopWatchCounter(
     isReset: Boolean,
     onReset: (Boolean) -> Unit,
     updateCount: (Long) -> Unit,
-    counter: Long
+    counter: Long,
+    lastUpdatedTime: Long
 
 ) {
     var totalElapsedTime by remember {
-            mutableLongStateOf(counter)
+        mutableLongStateOf(counter)
     }
-    var lastStartTime by remember { mutableLongStateOf(0L) }
+    var lastStartTime by remember { mutableLongStateOf(lastUpdatedTime) }
 
     LaunchedEffect(isReset) {
-        if(isReset)
-        {
+        if (isReset) {
             totalElapsedTime = 0L
             lastStartTime = 0L
             onReset(false)
@@ -214,7 +223,11 @@ fun StopWatchCounter(
 
     LaunchedEffect(isStarted) {
         if (isStarted) {
-            lastStartTime = System.currentTimeMillis()
+            if (lastStartTime == 0L) {
+                lastStartTime = System.currentTimeMillis()
+
+            }
+
             while (true) {
                 val currentTime = System.currentTimeMillis()
                 totalElapsedTime += currentTime - lastStartTime
@@ -226,7 +239,8 @@ fun StopWatchCounter(
             }
         }
     }
-    if (!isStarted) {
+    // todo, finis integrating the timer working when state is recomposed and paused.
+    if (!isStarted && lastStartTime != 0L) {
         updateCount(totalElapsedTime)
     }
 }
