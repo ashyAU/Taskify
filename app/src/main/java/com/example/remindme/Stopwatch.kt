@@ -49,9 +49,9 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun StopwatchParent() {
 
-    // todo, add persistent storag for the state of the stopwatch button, as well as the timer value.
-    val lapViewModel: LapViewModel = hiltViewModel()
-    val laps by lapViewModel.allLaps.collectAsState(initial = emptyList())
+    // todo, add persistent storage for the state of the stopwatch button, as well as the timer value.
+    val stopwatchViewModel: StopwatchViewModel = hiltViewModel()
+    val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
 
     var isStarted by rememberSaveable {
         mutableStateOf(false)
@@ -68,7 +68,7 @@ fun StopwatchParent() {
     Timer(
         counter = counter,
         isStarted = isStarted,
-        lapViewModel = lapViewModel,
+        stopwatchViewModel = stopwatchViewModel,
         isLap = isLap,
         onLap = { isLap = it })
 
@@ -87,7 +87,7 @@ fun StopwatchParent() {
 
         LazyColumn {
 
-            // todo, fix the formatting of the prettyprint
+            // todo, fix the formatting of the pretty print
             items(laps) { lap ->
                 Text(" Lap ${lap.id}:  ${lap.time}")
             }
@@ -96,7 +96,7 @@ fun StopwatchParent() {
             isStarted = isStarted,
             onStart = { isStarted = it },
             onReset = { isReset = it },
-            lapViewModel = lapViewModel,
+            stopwatchViewModel = stopwatchViewModel,
             onLap = { isLap = it }
         )
     }
@@ -108,7 +108,7 @@ fun StopwatchButtons(
     onStart: (Boolean) -> Unit,
     onReset: (Boolean) -> Unit,
     onLap: (Boolean) -> Unit,
-    lapViewModel: LapViewModel
+    stopwatchViewModel: StopwatchViewModel
 
 ) {
     val icon = if (isStarted) R.drawable.pause_filled else R.drawable.play_filled
@@ -124,7 +124,7 @@ fun StopwatchButtons(
         FilledTonalIconButton(onClick = {
             onReset(true)
             onStart(false)
-            lapViewModel.deleteAllLaps()
+            stopwatchViewModel.deleteAllLaps()
         }, modifier = Modifier.size(75.dp)) {
             Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
         }
@@ -193,7 +193,6 @@ fun StopWatchCounter(
     }
 }
 
-
 data class PrettyTime(
     var millisecond: Long,
     var second: Long,
@@ -206,7 +205,7 @@ data class PrettyTime(
 fun Timer(
     isStarted: Boolean,
     counter: Long,
-    lapViewModel: LapViewModel,
+    stopwatchViewModel: StopwatchViewModel,
     isLap: Boolean,
     onLap: (Boolean) -> Unit
 
@@ -224,7 +223,7 @@ fun Timer(
     prettyTime.second = ((totalMilliseconds / 1000) % 60).toLong()
     prettyTime.minute = ((totalMilliseconds / 60000) % 60).toLong()
     prettyTime.hour = ((totalMilliseconds / 3600000).toLong())
-    
+
     // region Timer Formatting
     LaunchedEffect(isStarted) {
         while (isStarted) {
@@ -304,7 +303,7 @@ fun Timer(
     // this may require using previous indexing for calculations unless NULL
     if (isLap)
     {
-        lapViewModel.addLap(time = "$formattedTime$formattedMS")
+        stopwatchViewModel.addLap(time = "$formattedTime$formattedMS")
         onLap(false)
     }
 }
