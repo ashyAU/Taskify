@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -65,6 +66,29 @@ fun StopwatchParent() {
     var isLap by rememberSaveable {
         mutableStateOf(false)
     }
+
+    LaunchedEffect(Unit) {
+        stopwatchViewModel.getLastStopwatchValue {
+            lastValue ->
+            lastValue.let {
+                if (it != null) {
+                    counter = it.counterValue
+                    isStarted = it.isStarted
+                }
+
+            }
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            stopwatchViewModel.saveStopwatchValue(
+                counterValue = counter,
+                lastUpdatedTime = System.currentTimeMillis(),
+                isStarted = isStarted
+            )
+        }
+    }
+
     Timer(
         counter = counter,
         isStarted = isStarted,

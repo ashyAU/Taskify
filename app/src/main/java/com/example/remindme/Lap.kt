@@ -1,18 +1,10 @@
 package com.example.remindme
 
-import android.app.Application
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.room.Dao
 import androidx.room.Database
-import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -38,11 +30,13 @@ data class Laps(
     val id: Int = 0,
     val time: String
 )
+
 @Entity(tableName = "counter")
 data class CounterEntity(
     @PrimaryKey val id: Int = 0,
-    val counterValue: Int,
-    val lastUpdatedTime: Long
+    val counterValue: Long = 0,
+    val lastUpdatedTime: Long = 0,
+    val isStarted: Boolean = false
 )
 
 
@@ -116,8 +110,6 @@ object DatabaseModule {
 class StopwatchViewModel @Inject constructor(private val stopwatchDao: StopwatchDao) : ViewModel() {
     val allLaps: Flow<List<Laps>> = stopwatchDao.getLapsById()
 
-    var counter by mutableIntStateOf(0)
-
     fun addLap(time: String) {
         viewModelScope.launch {
             stopwatchDao.insertLap(Laps(time = time))
@@ -128,6 +120,25 @@ class StopwatchViewModel @Inject constructor(private val stopwatchDao: Stopwatch
         viewModelScope.launch {
             stopwatchDao.deleteAllLaps()
             stopwatchDao.resetLapId()
+        }
+    }
+
+    fun saveStopwatchValue(counterValue: Long, lastUpdatedTime: Long, isStarted: Boolean) {
+        viewModelScope.launch {
+            stopwatchDao.insertCounter(
+                counterEntity = CounterEntity(
+                    counterValue = counterValue,
+                    lastUpdatedTime = lastUpdatedTime,
+                    isStarted = isStarted
+                )
+            )
+        }
+    }
+
+    fun getLastStopwatchValue(onResult: (CounterEntity?) -> Unit) {
+        viewModelScope.launch {
+            val lastValue = stopwatchDao.getCounter()
+            onResult(lastValue)
         }
     }
 }
