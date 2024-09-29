@@ -142,5 +142,3 @@ class StopwatchViewModel @Inject constructor(private val stopwatchDao: Stopwatch
         }
     }
 }
-
-

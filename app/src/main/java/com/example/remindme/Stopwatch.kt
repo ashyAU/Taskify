@@ -54,11 +54,11 @@ fun StopwatchParent() {
     val stopwatchViewModel: StopwatchViewModel = hiltViewModel()
     val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
 
-    var isStarted by rememberSaveable {
+    var isStarted by remember {
         mutableStateOf(false)
     }
-    var counter by rememberSaveable {
-        mutableLongStateOf(0)
+    var counter by remember {
+        mutableStateOf<Long?>(null)
     }
     var isReset by rememberSaveable {
         mutableStateOf(false)
@@ -67,13 +67,16 @@ fun StopwatchParent() {
         mutableStateOf(false)
     }
 
+    Text(text = "$counter")
     LaunchedEffect(Unit) {
-        stopwatchViewModel.getLastStopwatchValue {
-            lastValue ->
+        stopwatchViewModel.getLastStopwatchValue { lastValue ->
             lastValue.let {
                 if (it != null) {
                     counter = it.counterValue
                     isStarted = it.isStarted
+                }
+                else{
+                    counter = 0
                 }
 
             }
@@ -81,20 +84,24 @@ fun StopwatchParent() {
     }
     DisposableEffect(Unit) {
         onDispose {
-            stopwatchViewModel.saveStopwatchValue(
-                counterValue = counter,
-                lastUpdatedTime = System.currentTimeMillis(),
-                isStarted = isStarted
-            )
+            counter?.let { counter ->
+                stopwatchViewModel.saveStopwatchValue(
+                    counterValue = counter,
+                    lastUpdatedTime = System.currentTimeMillis(),
+                    isStarted = isStarted
+                )
+            }
         }
     }
 
-    Timer(
-        counter = counter,
+    counter?.let { it ->
+        Timer(
+        counter = it,
         isStarted = isStarted,
         stopwatchViewModel = stopwatchViewModel,
         isLap = isLap,
         onLap = { isLap = it })
+    }
 
     Column(
         Modifier.fillMaxSize(),
@@ -102,15 +109,18 @@ fun StopwatchParent() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.fillMaxWidth())
-        StopWatchCounter(
-            isStarted = isStarted,
-            isReset = isReset,
-            updateCount = { counter = it },
-            onReset = { isReset = it })
+        counter?.let { it ->
+            StopWatchCounter(
+                isStarted = isStarted,
+                isReset = isReset,
+                updateCount = { counter = it },
+                onReset = { isReset = it },
+                counter = it
+            )
+        }
 
 
         LazyColumn {
-
             // todo, fix the formatting of the pretty print
             items(laps) { lap ->
                 Text(" Lap ${lap.id}:  ${lap.time}")
@@ -184,16 +194,22 @@ fun StopWatchCounter(
     isStarted: Boolean,
     isReset: Boolean,
     onReset: (Boolean) -> Unit,
-    updateCount: (Long) -> Unit
+    updateCount: (Long) -> Unit,
+    counter: Long
 
 ) {
-    var totalElapsedTime by remember { mutableLongStateOf(0L) }
+    var totalElapsedTime by remember {
+            mutableLongStateOf(counter)
+    }
     var lastStartTime by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(isReset) {
-        totalElapsedTime = 0L
-        lastStartTime = 0L
-        onReset(false)
+        if(isReset)
+        {
+            totalElapsedTime = 0L
+            lastStartTime = 0L
+            onReset(false)
+        }
     }
 
     LaunchedEffect(isStarted) {
@@ -208,8 +224,6 @@ fun StopWatchCounter(
 
                 delay(100)
             }
-        } else {
-            lastStartTime = 0L
         }
     }
     if (!isStarted) {
@@ -281,6 +295,7 @@ fun Timer(
         prettyTime.millisecond
     )
     // endregion
+
     // region Timer Layout
     Row(
         modifier = Modifier
@@ -325,8 +340,7 @@ fun Timer(
 
     // todo add the correct calculation for the time difference between the current lap and the previous lap.
     // this may require using previous indexing for calculations unless NULL
-    if (isLap)
-    {
+    if (isLap) {
         stopwatchViewModel.addLap(time = "$formattedTime$formattedMS")
         onLap(false)
     }
