@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -20,8 +22,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,23 +52,29 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ParentComposable() {
     var selectedIndex by remember { mutableIntStateOf(0) }
+    var dropdownMenuOpen by remember { mutableStateOf(false) }
+
+    DropDownMenuMain(dropdownMenuOpen = dropdownMenuOpen, isOpen = { dropdownMenuOpen = it })
 
     Scaffold(
-        topBar = { TopAppBar(title = {
-            Text(text = navigationList[selectedIndex].label)
-        },
-            actions = {
-                IconButton(onClick = { /*TODO*/ } ) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+        topBar = {
+            TopAppBar(title = {
+                Text(text = navigationList[selectedIndex].label)
+            },
+                actions = {
+                    IconButton(onClick = {
+                        dropdownMenuOpen = !dropdownMenuOpen
+                    }) {
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                    }
                 }
-            }
 
-            ) },
+            )
+        },
 
         content = { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                when(selectedIndex)
-                {
+                when (selectedIndex) {
                     0 -> AlarmParent()
                     1 -> TasksParent()
                     2 -> StopwatchParent()
@@ -76,8 +86,7 @@ fun ParentComposable() {
                 navigationList.forEachIndexed { index, item ->
                     NavigationBarItem(
                         icon = {
-                            if(selectedIndex == index)
-                            {
+                            if (selectedIndex == index) {
                                 Icon(
                                     painterResource(id = item.iconFilled),
                                     contentDescription = item.label

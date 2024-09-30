@@ -73,7 +73,6 @@ fun StopwatchParent() {
     }
 
 
-    Text(text = "$counter")
     LaunchedEffect(Unit) {
         stopwatchViewModel.getLastStopwatchValue { lastValue ->
             lastValue.let {
