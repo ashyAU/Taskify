@@ -1,4 +1,4 @@
-package com.example.remindme
+package com.example.remindme.stopwatch
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
