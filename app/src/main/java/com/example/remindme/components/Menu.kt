@@ -23,10 +23,7 @@ import com.example.remindme.R
 fun DropDownMenuMain(
     dropdownMenuOpen: Boolean,
     isOpen: (Boolean) -> Unit,
-    index: (Menu) -> Unit
 ) {
-
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +42,7 @@ fun DropDownMenuMain(
                         isOpen(false)
                         when (it.text) {
                             "Settings" -> {
-                                index(Menu.settings)
+
                             }
                         }
 
