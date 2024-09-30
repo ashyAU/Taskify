@@ -188,6 +188,7 @@ fun StopwatchButtons(
             onClick = {
                 onLap(true)
             },
+            enabled = isStarted,
             modifier = Modifier
                 .size(75.dp)
                 .alpha(if (isStarted) 1f else 0f)
@@ -354,7 +355,7 @@ fun Timer(
     // todo add the correct calculation for the time difference between the current lap and the previous lap.
     // this may require using previous indexing for calculations unless NULL
     if (isLap) {
-        stopwatchViewModel.addLap(time = "$formattedTime$formattedMS")
+        stopwatchViewModel.addLap(time = "$counter")
         onLap(false)
     }
 }

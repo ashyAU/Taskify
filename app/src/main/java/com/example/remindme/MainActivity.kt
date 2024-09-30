@@ -121,7 +121,3 @@ val navigationList = mutableListOf(
     NavigationData(R.drawable.countdown, R.drawable.countdown_filled, "Timer")
 )
 
-
-
-
-

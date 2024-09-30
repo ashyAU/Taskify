@@ -35,14 +35,16 @@ fun DropDownMenuMain(dropdownMenuOpen: Boolean, isOpen: (Boolean) -> Unit) {
     {
         DropdownMenu(
             expanded = dropdownMenuOpen,
-            onDismissRequest = { isOpen(!dropdownMenuOpen) },
+            onDismissRequest = { isOpen(false) },
             offset = DpOffset(x = (-20).dp, y = (100).dp)
         ) {
             dropdownMenuList.forEach {
                 DropdownMenuItem(
                     text = { Text(it.text) },
                     onClick = {
+                        isOpen(false)
                         // todo, add the composable for the settings, this will open a page for the setting options
+                        // this just needs to be a boolean
                     },
                     leadingIcon = {
                         Icon(
@@ -61,6 +63,7 @@ data class DropdownMenuData(
     val text: String,
 )
 
-val dropdownMenuList = mutableListOf(
+val dropdownMenuList = listOf(
     DropdownMenuData(R.drawable.settings, "Settings")
 )
+
