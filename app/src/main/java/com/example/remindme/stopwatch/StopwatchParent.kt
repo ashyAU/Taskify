@@ -34,7 +34,6 @@ fun StopwatchParent(navController: NavController, navBackStackEntry: NavBackStac
 
     val stopwatchViewModel: StopwatchViewModel = hiltViewModel(navBackStackEntry)
 
-
     val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
     var isStarted by remember {
         mutableStateOf(false)

@@ -42,10 +42,17 @@ fun ParentComposable() {
 
     val navController = rememberNavController()
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    DropDownMenuMain(dropdownMenuOpen = dropdownMenuOpen, isOpen = { dropdownMenuOpen = it })
+    DropDownMenuMain(
+        dropdownMenuOpen = dropdownMenuOpen,
+        isOpen = { dropdownMenuOpen = it },
+        navController = navController
+    )
 
     Scaffold(topBar = {
+
         TopAppBar(title = {
             Text(text = navigationList[selectedIndex].label)
         }, actions = {
@@ -59,31 +66,31 @@ fun ParentComposable() {
         }
         )
     }, bottomBar = {
-        NavigationBar {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-            navigationList.forEachIndexed { index, navigationList ->
-                if (index != 4) {
-                    NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.hierarchy::class == navigationList.route } == true,
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = if (selectedIndex != index) navigationList.iconUnfilled else navigationList.iconFilled),
-                                contentDescription = navigationList.label
-                            )
-                        },
-                        label = { Text(navigationList.label) },
-                        onClick = {
-                            selectedIndex = index
-                            navController.navigate(navigationList.route.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+        if (currentRoute != AppRoute.Settings.route) {
+            NavigationBar {
+                navigationList.forEachIndexed { index, navigationList ->
+                    if (index != 4) {
+                        NavigationBarItem(
+                            selected = currentRoute == navigationList.route.route,
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = if (selectedIndex != index) navigationList.iconUnfilled else navigationList.iconFilled),
+                                    contentDescription = navigationList.label
+                                )
+                            },
+                            label = { Text(navigationList.label) },
+                            onClick = {
+                                selectedIndex = index
+                                navController.navigate(navigationList.route.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                    )
+                            },
+                        )
+                    }
                 }
 
             }
