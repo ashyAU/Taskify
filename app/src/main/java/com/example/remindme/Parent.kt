@@ -57,33 +57,36 @@ fun ParentComposable() {
                 )
             }
         }
-
         )
     }, bottomBar = {
         NavigationBar {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            navigationList.forEach { navigationList ->
-                NavigationBarItem(
-                    selected = currentDestination?.hierarchy?.any { it.hierarchy::class == navigationList.route } == true,
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = navigationList.iconUnfilled),
-                            contentDescription = navigationList.label
-                        )
-                    },
-                    label = { Text(navigationList.label) },
-                    onClick = {
-                        navController.navigate(navigationList.route.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+            navigationList.forEachIndexed { index, navigationList ->
+                if (index != 4)
+                {
+                    NavigationBarItem(
+                        selected = currentDestination?.hierarchy?.any { it.hierarchy::class == navigationList.route } == true,
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = if (selectedIndex != index) navigationList.iconUnfilled else navigationList.iconFilled),
+                                contentDescription = navigationList.label
+                            )
+                        },
+                        label = { Text(navigationList.label) },
+                        onClick = {
+                            selectedIndex = index
+                            navController.navigate(navigationList.route.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
+                        },
+                    )
+                }
 
-                            restoreState = true
-                        }
-                    },
-                )
             }
         }
     }) { innerPadding ->

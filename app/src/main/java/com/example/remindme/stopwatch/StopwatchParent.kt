@@ -29,6 +29,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun StopwatchParent(navController: NavController) {
+
+    // todo, fix the broken state hilt
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val stopwatchViewModel: StopwatchViewModel = hiltViewModel(navBackStackEntry!!)
     val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
