@@ -8,10 +8,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -61,7 +57,7 @@ fun DropDownMenuMain(
         }
     }
 }
-
+// TODO, remove the data class here and access the data from navigation List
 data class DropdownMenuData(
     val icon: Int,
     val text: String,
@@ -69,11 +65,10 @@ data class DropdownMenuData(
 )
 
 val dropdownMenuList = listOf(
-    DropdownMenuData(R.drawable.settings, "Settings", Menu.settings)
+    DropdownMenuData(R.drawable.settings, "Settings", Menu.Settings)
 )
 
 enum class Menu {
-    default,
-    settings
+    Settings
 }
 

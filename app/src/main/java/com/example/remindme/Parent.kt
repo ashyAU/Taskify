@@ -1,8 +1,10 @@
 package com.example.remindme
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,6 +43,7 @@ fun ParentComposable() {
 
     val navController = rememberNavController()
 
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -52,19 +54,34 @@ fun ParentComposable() {
     )
 
     Scaffold(topBar = {
-
-        TopAppBar(title = {
-            Text(text = navigationList[selectedIndex].label)
-        }, actions = {
-            IconButton(onClick = {
-                dropdownMenuOpen = !dropdownMenuOpen
-            }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert, contentDescription = null
-                )
+        if (currentRoute != AppRoute.Settings.route) {
+            TopAppBar(title = {
+                Text(text = navigationList[selectedIndex].label)
+            }, actions = {
+                IconButton(onClick = {
+                    dropdownMenuOpen = !dropdownMenuOpen
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert, contentDescription = null
+                    )
+                }
             }
+            )
+        } else {
+            TopAppBar(title = { Text(text = navigationList[4].label) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        // TODO, ensure this is using the previously stored route instead of just alarms
+                        navController.navigate(AppRoute.Alarm.route)
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Arrow Back"
+                        )
+                    }
+                })
         }
-        )
+
     }, bottomBar = {
         if (currentRoute != AppRoute.Settings.route) {
             NavigationBar {
@@ -110,7 +127,11 @@ fun ParentComposable() {
                 )
             }
             composable(AppRoute.Timer.route) { TasksParent() }
-            composable(AppRoute.Settings.route) { SettingsParent() }
+            composable(
+                enterTransition = { slideInHorizontally() },
+                exitTransition = { slideOutHorizontally() },
+                route = AppRoute.Settings.route
+            ) { SettingsParent() }
         }
     }
 }
