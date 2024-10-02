@@ -1,11 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    kotlin("kapt")
+
     id("dagger.hilt.android.plugin")
-    /*
-        id("com.google.devtools.ksp") version "2.0.20-1.0.25" // Replace with the latest version
-    */
+    id("com.google.devtools.ksp")
     alias(libs.plugins.compose.compiler)
 }
 
@@ -16,6 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.example.remindme"
         minSdk = 30
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -59,11 +58,11 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
-    kapt("androidx.room:room-compiler:2.6.1")
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler.v250)
-    implementation("com.google.dagger:hilt-android:2.52")
-    kapt("com.google.dagger:hilt-compiler:2.52")
+    ksp(libs.androidx.room.compiler.v250)
+    implementation(libs.dagger.hilt.android)
+    ksp(libs.hilt.compiler.v252)
 
 
     implementation(libs.androidx.hilt.navigation.compose)
@@ -92,6 +91,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-kapt {
-    correctErrorTypes = true
-}
+
