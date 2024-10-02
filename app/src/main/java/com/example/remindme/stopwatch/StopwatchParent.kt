@@ -23,18 +23,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 @Composable
-fun StopwatchParent(navController: NavController) {
+fun StopwatchParent(navController: NavController, navBackStackEntry: NavBackStackEntry) {
 
-    // todo, fix the broken state hilt
-    val navBackStackEntry = navController.currentBackStackEntryAsState().value
-    val stopwatchViewModel: StopwatchViewModel = hiltViewModel(navBackStackEntry!!)
+    val stopwatchViewModel: StopwatchViewModel = hiltViewModel(navBackStackEntry)
+
+
     val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
-
     var isStarted by remember {
         mutableStateOf(false)
     }

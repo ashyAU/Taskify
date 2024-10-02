@@ -63,8 +63,7 @@ fun ParentComposable() {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             navigationList.forEachIndexed { index, navigationList ->
-                if (index != 4)
-                {
+                if (index != 4) {
                     NavigationBarItem(
                         selected = currentDestination?.hierarchy?.any { it.hierarchy::class == navigationList.route } == true,
                         icon = {
@@ -97,13 +96,14 @@ fun ParentComposable() {
         ) {
             composable(AppRoute.Alarm.route) { AlarmParent() }
             composable(AppRoute.Tasks.route) { TasksParent() }
-            composable(AppRoute.Stopwatch.route) { StopwatchParent(navController = navController) }
+            composable(AppRoute.Stopwatch.route) { navBackStackEntry ->
+                StopwatchParent(
+                    navController = navController,
+                    navBackStackEntry = navBackStackEntry
+                )
+            }
             composable(AppRoute.Timer.route) { TasksParent() }
             composable(AppRoute.Settings.route) { SettingsParent() }
-        }
-
-        Column(modifier = Modifier.padding(innerPadding)) {
-
         }
     }
 }

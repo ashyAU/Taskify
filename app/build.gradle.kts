@@ -3,8 +3,10 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
-    id("com.google.devtools.ksp") // KSP for annotation processing
-
+    /*
+        id("com.google.devtools.ksp") version "2.0.20-1.0.25" // Replace with the latest version
+    */
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -57,18 +59,15 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
-    annotationProcessor(libs.androidx.room.compiler)
+    kapt("androidx.room:room-compiler:2.6.1")
     implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler.v250)
+    implementation("com.google.dagger:hilt-android:2.52")
+    kapt("com.google.dagger:hilt-compiler:2.52")
 
-    implementation(libs.androidx.navigation.compose)
 
-    implementation("com.google.dagger:hilt-android:2.48") // Hilt dependencies
-    kapt("com.google.dagger:hilt-compiler:2.48") // Hilt compiler for KAPT
-    implementation( libs.androidx.room.runtime.v250) // Room runtime
-    ksp (libs.androidx.room.compiler.v250) // Room compiler for KAPT
-    implementation( libs.androidx.hilt.navigation.compose.v100) // Hilt for Jetpack Compose
-
-    implementation(libs.androidx.activity.compose.v160) // For ViewModel support in Compose
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.navigation.compose.v270)
     implementation(libs.androidx.lifecycle.viewmodel.compose)// Compose ViewModel support
 
     implementation(libs.androidx.core.ktx)
