@@ -21,86 +21,109 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.remindme.components.DropDownMenuMain
+import com.example.remindme.setings.SettingsParent
 import com.example.remindme.stopwatch.StopwatchParent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun ParentComposable() {
+
+
     var selectedIndex by remember { mutableIntStateOf(0) }
     var dropdownMenuOpen by remember { mutableStateOf(false) }
-    DropDownMenuMain(
-        dropdownMenuOpen = dropdownMenuOpen,
-        isOpen = { dropdownMenuOpen = it })
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                Text(text = navigationList[selectedIndex].label)
-            },
-                actions = {
-                    IconButton(onClick = {
-                        dropdownMenuOpen = !dropdownMenuOpen
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = null
-                        )
-                    }
-                }
+    val navController = rememberNavController()
 
-            )
-        },
 
-        content = { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
-                when (selectedIndex) {
-                    0 -> AlarmParent()
-                    1 -> TasksParent()
-                    2 -> StopwatchParent()
-                }
-            }
-        },
-        bottomBar = {
-            NavigationBar {
-                navigationList.forEachIndexed { index, item ->
-                    if (index != 4) {
-                        NavigationBarItem(
-                            icon = {
-                                if (selectedIndex == index) {
-                                    Icon(
-                                        painterResource(id = item.iconFilled),
-                                        contentDescription = item.label
-                                    )
-                                } else {
-                                    Icon(
-                                        painterResource(id = item.iconUnfilled),
-                                        contentDescription = item.label
-                                    )
-                                }
-                            },
-                            label = { Text(item.label) },
-                            selected = selectedIndex == index,
-                            onClick = { selectedIndex = index })
-                    }
-                }
+    DropDownMenuMain(dropdownMenuOpen = dropdownMenuOpen, isOpen = { dropdownMenuOpen = it })
+
+    Scaffold(topBar = {
+        TopAppBar(title = {
+            Text(text = navigationList[selectedIndex].label)
+        }, actions = {
+            IconButton(onClick = {
+                dropdownMenuOpen = !dropdownMenuOpen
+            }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert, contentDescription = null
+                )
             }
         }
-    )
+
+        )
+    }, bottomBar = {
+        NavigationBar {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            navigationList.forEach { navigationList ->
+                NavigationBarItem(
+                    selected = currentDestination?.hierarchy?.any { it.hierarchy::class == navigationList.route } == true,
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = navigationList.iconUnfilled),
+                            contentDescription = navigationList.label
+                        )
+                    },
+                    label = { Text(navigationList.label) },
+                    onClick = {
+                        navController.navigate(navigationList.route.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+
+                            restoreState = true
+                        }
+                    },
+                )
+            }
+        }
+    }) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = AppRoute.Alarm.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(AppRoute.Alarm.route) { AlarmParent() }
+            composable(AppRoute.Tasks.route) { TasksParent() }
+            composable(AppRoute.Stopwatch.route) { StopwatchParent(navController = navController) }
+            composable(AppRoute.Timer.route) { TasksParent() }
+            composable(AppRoute.Settings.route) { SettingsParent() }
+        }
+
+        Column(modifier = Modifier.padding(innerPadding)) {
+
+        }
+    }
 }
 
 
-data class NavigationData(
-    val iconUnfilled: Int = 0,
-    val iconFilled: Int = 0,
-    val label: String = "Error"
+data class NavigationData<T : Any>(
+    val iconUnfilled: Int, val iconFilled: Int, val label: String, val route: T
 )
 
 val navigationList = listOf(
-    NavigationData(R.drawable.alarm, R.drawable.alarm_filled, "Alarm"),
-    NavigationData(R.drawable.tasks, R.drawable.tasks_filled, "Tasks"),
-    NavigationData(R.drawable.stopwatch, R.drawable.stopwatch_filled, "Stopwatch"),
-    NavigationData(R.drawable.countdown, R.drawable.countdown_filled, "Timer"),
-    NavigationData(R.drawable.settings, R.drawable.settings, "Settings")
+    NavigationData(R.drawable.alarm, R.drawable.alarm_filled, "Alarm", AppRoute.Alarm),
+    NavigationData(R.drawable.tasks, R.drawable.tasks_filled, "Tasks", AppRoute.Tasks),
+    NavigationData(
+        R.drawable.stopwatch, R.drawable.stopwatch_filled, "Stopwatch", AppRoute.Stopwatch
+    ),
+    NavigationData(R.drawable.countdown, R.drawable.countdown_filled, "Timer", AppRoute.Timer),
+    NavigationData(R.drawable.settings, R.drawable.settings, "Settings", AppRoute.Settings)
 )
+
+sealed class AppRoute(val route: String) {
+    data object Alarm : AppRoute("alarm")
+    data object Tasks : AppRoute("tasks")
+    data object Stopwatch : AppRoute("stopwatch")
+    data object Timer : AppRoute("timer")
+    data object Settings : AppRoute("settings")
+}

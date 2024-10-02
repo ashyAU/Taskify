@@ -23,13 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 
-@Preview(showBackground = true)
 @Composable
-fun StopwatchParent() {
-
-    val stopwatchViewModel: StopwatchViewModel = hiltViewModel()
+fun StopwatchParent(navController: NavController) {
+    val navBackStackEntry = navController.currentBackStackEntryAsState().value
+    val stopwatchViewModel: StopwatchViewModel = hiltViewModel(navBackStackEntry!!)
     val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
 
     var isStarted by remember {
@@ -38,10 +39,10 @@ fun StopwatchParent() {
     var counter by remember {
         mutableStateOf<Long?>(null)
     }
-    var isReset by rememberSaveable {
+    var isReset by remember {
         mutableStateOf(false)
     }
-    var isLap by rememberSaveable {
+    var isLap by remember {
         mutableStateOf(false)
     }
     var lastUpdatedTime by remember {
@@ -116,11 +117,3 @@ fun StopwatchParent() {
         )
     }
 }
-
-
-
-
-
-
-
-

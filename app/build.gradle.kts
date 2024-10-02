@@ -60,6 +60,8 @@ dependencies {
     annotationProcessor(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation(libs.androidx.navigation.compose)
+
     implementation("com.google.dagger:hilt-android:2.48") // Hilt dependencies
     kapt("com.google.dagger:hilt-compiler:2.48") // Hilt compiler for KAPT
     implementation( libs.androidx.room.runtime.v250) // Room runtime
