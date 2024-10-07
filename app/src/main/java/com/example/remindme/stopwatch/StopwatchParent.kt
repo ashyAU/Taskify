@@ -1,10 +1,13 @@
 package com.example.remindme.stopwatch
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -75,41 +79,44 @@ fun StopwatchParent(navController: NavController, navBackStackEntry: NavBackStac
             }
         }
     }
-    counter?.let { it ->
-        Timer(
-            counter = it,
-            isStarted = isStarted,
-            stopwatchViewModel = stopwatchViewModel,
-            isLap = isLap,
-            onLap = { isLap = it })
 
-        lastUpdatedTime?.let { lastUpdate ->
-            StopWatchCounter(
-                isStarted = isStarted,
-                isReset = isReset,
-                updateCount = { counter = it },
-                onReset = { isReset = it },
-                counter = it,
-                lastUpdatedTime = lastUpdate
-            )
-        }
-    }
 
     Column(
         Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.fillMaxWidth())
-        LazyColumn {
-            // todo, fix the formatting of the pretty print
-            items(laps) { lap ->
-                Text(
-                    text = "# ${lap.id}: ${lap.time}",
-                    style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Normal
+        counter?.let { it ->
+            Timer(
+                counter = it,
+                isStarted = isStarted,
+                stopwatchViewModel = stopwatchViewModel,
+                isLap = isLap,
+                onLap = { isLap = it })
+
+            lastUpdatedTime?.let { lastUpdate ->
+                StopWatchCounter(
+                    isStarted = isStarted,
+                    isReset = isReset,
+                    updateCount = { counter = it },
+                    onReset = { isReset = it },
+                    counter = it,
+                    lastUpdatedTime = lastUpdate
                 )
             }
         }
+        Box(modifier = Modifier.fillMaxWidth().padding(40.dp).weight(0.3f), contentAlignment = Alignment.Center) {
+            LazyColumn {
+                // todo, fix the formatting of the pretty print
+                items(laps) { lap ->
+                    Text(
+                        text = "# ${lap.id}: ${lap.time}",
+                        style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Normal
+                    )
+                }
+            }
+        }
+
         StopwatchButtons(
             isStarted = isStarted,
             onStart = { isStarted = it },

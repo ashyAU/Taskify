@@ -52,5 +52,6 @@ fun StopWatchCounter(
     // todo, finish integrating the timer working when state is recomposed and paused.
     if (!isStarted ) {
         updateCount(totalElapsedTime)
+        lastStartTime = 0L
     }
 }
