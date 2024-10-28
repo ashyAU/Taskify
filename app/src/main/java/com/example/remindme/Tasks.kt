@@ -7,14 +7,17 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LeadingIconTab
@@ -52,14 +55,15 @@ fun TasksParent() {
     val pagerState = rememberPagerState {
         tabList.size
     }
+    var isOpen by remember { mutableStateOf(false) }
+
     LaunchedEffect(selectedTabIndex) {
         pagerState.animateScrollToPage(selectedTabIndex)
     }
-    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-        if (!pagerState.isScrollInProgress) {
-            selectedTabIndex = pagerState.currentPage
-        }
+    LaunchedEffect(pagerState.targetPage) {
+        selectedTabIndex = pagerState.targetPage
     }
+
     Column(modifier = Modifier.fillMaxSize()) {
         ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
 
@@ -72,7 +76,7 @@ fun TasksParent() {
             }
             LeadingIconTab(
                 selected = false,
-                onClick = { /* todo add a custom page to add a new item to the list */},
+                onClick = { /* todo add a custom page to add a new item to the list */ },
                 text = { Text("New List") },
                 icon = {
                     Icon(
@@ -85,34 +89,23 @@ fun TasksParent() {
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .fillMaxHeight(0.8f)
         ) { index ->
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(tabList[index])
+            Card(modifier = Modifier.fillMaxSize().padding(20.dp)) {
+
             }
-
         }
     }
-
-
-    var isOpen by remember { mutableStateOf(false) }
-
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+            .padding(10.dp)
+    )
+    {
         TasksButton(onOpen = { isOpen = it })
-    }
-    Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = isOpen,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-        }
     }
 }
 
@@ -128,7 +121,7 @@ fun TasksButton(
         modifier = Modifier.size(110.dp)
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.edit), contentDescription = null,
+            imageVector = Icons.Default.Add, contentDescription = null,
             modifier = Modifier.fillMaxSize(0.4f)
         )
     }
