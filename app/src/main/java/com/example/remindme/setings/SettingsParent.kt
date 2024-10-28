@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
@@ -29,6 +30,8 @@ import androidx.graphics.shapes.circle
 import androidx.graphics.shapes.star
 import androidx.graphics.shapes.toPath
 
+
+@Preview
 @Composable
 fun SettingsParent() {
 

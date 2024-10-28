@@ -3,6 +3,7 @@ package com.example.remindme
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -18,13 +21,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LeadingIconTab
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,10 +47,70 @@ import androidx.compose.ui.unit.dp
 import java.util.Calendar
 
 
+data class TabData(
+    val name: String,
+)
+
+val tabList = listOf<String>(
+    "List1",
+    "List2",
+    "List3",
+    "List4",
+    "List5",
+    "List6"
+)
+
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksParent() {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val pagerState = rememberPagerState {
+        tabList.size
+    }
+    LaunchedEffect(selectedTabIndex) {
+        pagerState.animateScrollToPage(selectedTabIndex)
+    }
+    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+        if (!pagerState.isScrollInProgress) {
+            selectedTabIndex = pagerState.currentPage
+        }
+    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
+
+            tabList.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                )
+            }
+            LeadingIconTab(
+                selected = false,
+                onClick = { /* todo add a custom page to add a new item to the list */},
+                text = { Text("New List") },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add item to List"
+                    )
+                })
+        }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) { index ->
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(tabList[index])
+            }
+
+        }
+    }
+
+
     var isOpen by remember { mutableStateOf(false) }
 
     Column(
@@ -58,7 +128,6 @@ fun TasksParent() {
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            tasksCard(isOpen = isOpen, onOpen = { isOpen = it })
         }
     }
 }
@@ -78,73 +147,5 @@ fun TasksButton(
             painter = painterResource(id = R.drawable.edit), contentDescription = null,
             modifier = Modifier.fillMaxSize(0.4f)
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun tasksCard(
-    isOpen: Boolean,
-    onOpen: (Boolean) -> Unit
-): TimePickerState? {
-    val currentTime = Calendar.getInstance()
-    val timePickerState = rememberTimePickerState(
-        currentTime.get(Calendar.HOUR_OF_DAY),
-        currentTime.get(Calendar.MINUTE),
-        false
-    )
-    var buttonClicked by remember { mutableStateOf("") }
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (isOpen) {
-            Card(
-                modifier = Modifier.fillMaxWidth(0.9f)
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text(
-                            text = "Set time",
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(15.dp)
-                        )
-                    }
-                    TimePicker(state = timePickerState)
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        TextButton(
-                            onClick = {
-                                onOpen(false)
-                                buttonClicked = "Cancel"
-                            }) {
-                            Text("Cancel")
-                        }
-                        TextButton(onClick = {
-                            onOpen(false)
-                            buttonClicked = "OK"
-                        }) {
-                            Text("OK")
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return when (buttonClicked) {
-        "OK" -> timePickerState
-        "Cancel" -> null
-        else -> null
     }
 }
