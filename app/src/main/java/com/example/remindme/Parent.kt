@@ -18,10 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -35,6 +37,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.remindme.components.DropDownMenuMain
 import com.example.remindme.setings.SettingsParent
 import com.example.remindme.stopwatch.StopwatchParent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -119,16 +123,22 @@ fun ParentComposable() {
             }
         },
         floatingActionButton = {
+            val scope = rememberCoroutineScope()
             when (currentRoute) {
                 AppRoute.Tasks.route -> {
-                    var sheetOpen by rememberSaveable {
-                        mutableStateOf(false)
+                    val sheetState = rememberModalBottomSheetState()
+                    LaunchedEffect(sheetState) {
+                        sheetState.hide()
                     }
-                    FloatingActionButton(onClick = { sheetOpen = true },
+
+                    FloatingActionButton(onClick = {
+                        scope.launch {
+                        sheetState.show() } },
+
                         content = {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "FAB")
                         })
-                    AddTask(isSheetOpen =  {sheetOpen = it }, sheetOpen = sheetOpen)
+                    AddTask(sheetState = sheetState)
 
                 }
                 AppRoute.Alarm.route -> {

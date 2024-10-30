@@ -47,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,6 +63,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 
 val tabList = listOf(
@@ -217,8 +219,7 @@ fun TasksParent() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
-    val sheetState = rememberModalBottomSheetState()
+fun AddTask(sheetState: SheetState) {
     var text by rememberSaveable {
         mutableStateOf("")
     }
@@ -231,15 +232,19 @@ fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
     var descriptionText by rememberSaveable {
         mutableStateOf("")
     }
+    val scope = rememberCoroutineScope()
 
+    LaunchedEffect(!sheetState.isVisible) {
+        text = ""
+        descriptionText = ""
+        descriptionOpen = false
+    }
 
-    if (sheetOpen) {
-
+    if (sheetState.isVisible) {
         ModalBottomSheet(onDismissRequest = {
-            isSheetOpen(false)
-            text = ""
-            descriptionText = ""
-            descriptionOpen = false
+            scope.launch {
+                sheetState.hide()
+            }
         }) {
             LaunchedEffect(Unit) {
                 focusRequester.requestFocus()
@@ -298,18 +303,23 @@ fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
                     text = "Save",
                     modifier = Modifier.clickable(enabled = text.isNotEmpty())
                     {
+                        scope.launch {
+                            if (sheetState.isVisible) {
+                                sheetState.hide()
+                            }
+                        }
+
                         /* todo add task to the database. */
                     },
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold
                 )
-
             }
         }
     }
 }
 
-val tasksList = listOf(
+val tasksList = mutableListOf(
     "Do the dishes",
     "Make the bed",
     "Go for a run"
