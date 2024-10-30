@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -64,7 +65,7 @@ fun ParentComposable() {
     Scaffold(
         topBar = {
             if (currentRoute != AppRoute.Settings.route) {
-                TopAppBar(title = {
+                CenterAlignedTopAppBar(title = {
                     Text(text = navigationList[selectedIndex].label)
                 }, actions = {
                     IconButton(onClick = {
@@ -77,7 +78,7 @@ fun ParentComposable() {
                 }
                 )
             } else {
-                TopAppBar(title = { Text(text = navigationList[4].label) },
+                CenterAlignedTopAppBar(title = { Text(text = navigationList[4].label) },
                     navigationIcon = {
                         IconButton(onClick = {
                             // TODO, ensure this is using the previously stored route instead of just alarms
