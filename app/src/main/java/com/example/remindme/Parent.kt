@@ -5,8 +5,10 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
@@ -53,66 +55,84 @@ fun ParentComposable() {
         navController = navController
     )
 
-    Scaffold(topBar = {
-        if (currentRoute != AppRoute.Settings.route) {
-            TopAppBar(title = {
-                Text(text = navigationList[selectedIndex].label)
-            }, actions = {
-                IconButton(onClick = {
-                    dropdownMenuOpen = !dropdownMenuOpen
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert, contentDescription = null
-                    )
-                }
-            }
-            )
-        } else {
-            TopAppBar(title = { Text(text = navigationList[4].label) },
-                navigationIcon = {
+    Scaffold(
+        topBar = {
+            if (currentRoute != AppRoute.Settings.route) {
+                TopAppBar(title = {
+                    Text(text = navigationList[selectedIndex].label)
+                }, actions = {
                     IconButton(onClick = {
-                        // TODO, ensure this is using the previously stored route instead of just alarms
-                        navController.navigate(AppRoute.Alarm.route)
+                        dropdownMenuOpen = !dropdownMenuOpen
                     }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Arrow Back"
-                        )
-                    }
-                })
-        }
-
-    }, bottomBar = {
-        if (currentRoute != AppRoute.Settings.route) {
-            NavigationBar {
-                navigationList.forEachIndexed { index, navigationList ->
-                    if (index != 4) {
-                        NavigationBarItem(
-                            selected = currentRoute == navigationList.route.route,
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = if (selectedIndex != index) navigationList.iconUnfilled else navigationList.iconFilled),
-                                    contentDescription = navigationList.label
-                                )
-                            },
-                            label = { Text(navigationList.label) },
-                            onClick = {
-                                selectedIndex = index
-                                navController.navigate(navigationList.route.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
+                            imageVector = Icons.Default.MoreVert, contentDescription = null
                         )
                     }
                 }
-
+                )
+            } else {
+                TopAppBar(title = { Text(text = navigationList[4].label) },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            // TODO, ensure this is using the previously stored route instead of just alarms
+                            navController.navigate(AppRoute.Alarm.route)
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Arrow Back"
+                            )
+                        }
+                    })
             }
+
+        }, bottomBar = {
+            if (currentRoute != AppRoute.Settings.route) {
+                NavigationBar {
+                    navigationList.forEachIndexed { index, navigationList ->
+                        if (index != 4) {
+                            NavigationBarItem(
+                                selected = currentRoute == navigationList.route.route,
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = if (selectedIndex != index) navigationList.iconUnfilled else navigationList.iconFilled),
+                                        contentDescription = navigationList.label
+                                    )
+                                },
+                                label = { Text(navigationList.label) },
+                                onClick = {
+                                    selectedIndex = index
+                                    navController.navigate(navigationList.route.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                            )
+                        }
+                    }
+
+                }
+            }
+        },
+        floatingActionButton = {
+            when (currentRoute) {
+                AppRoute.Tasks.route -> {
+                    FloatingActionButton(onClick = { /*TODO*/ },
+                        content = {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "FAB")
+                        })
+                }
+                AppRoute.Alarm.route -> {
+                    FloatingActionButton(onClick = { /*TODO*/ },
+                        content = {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "FAB")
+                        })
+                }
+                }
         }
-    }) { innerPadding ->
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = AppRoute.Alarm.route,
