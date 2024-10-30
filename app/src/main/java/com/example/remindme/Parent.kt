@@ -16,6 +16,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -96,14 +98,20 @@ fun ParentComposable() {
 
         }, bottomBar = {
             if (currentRoute != AppRoute.Settings.route) {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ) {
                     navigationList.forEachIndexed { index, navigationList ->
                         if (index != 4) {
                             NavigationBarItem(
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.inverseSurface,
+                                    indicatorColor = MaterialTheme.colorScheme.inverseOnSurface
+                                ),
                                 selected = currentRoute == navigationList.route.route,
                                 icon = {
                                     Icon(
-                                        painter = painterResource(id = if (selectedIndex != index) navigationList.iconUnfilled else navigationList.iconFilled),
+                                        painter = painterResource(id = navigationList.iconUnfilled),
                                         contentDescription = navigationList.label
                                     )
                                 },
@@ -135,7 +143,9 @@ fun ParentComposable() {
                     }
                     FloatingActionButton(onClick = {
                         scope.launch {
-                        sheetState.show() } },
+                            sheetState.show()
+                        }
+                    },
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         content = {
@@ -143,13 +153,14 @@ fun ParentComposable() {
                         })
                     AddTask(sheetState = sheetState)
                 }
+
                 AppRoute.Alarm.route -> {
                     FloatingActionButton(onClick = { /*TODO*/ },
                         content = {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "FAB")
                         })
                 }
-                }
+            }
         }
     ) { innerPadding ->
         NavHost(

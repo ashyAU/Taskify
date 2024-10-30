@@ -242,12 +242,12 @@ fun TasksParent() {
                 Card(modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 0.dp, start = 10.dp, end = 10.dp, bottom = 5.dp)
-                    .background(color = MaterialTheme.colorScheme.primaryContainer),
+                    .background(color = MaterialTheme.colorScheme.surfaceContainerLowest),
                     content = {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(color = MaterialTheme.colorScheme.primaryContainer)
+                                .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
                                 .padding(10.dp)
                         )
                         {
@@ -306,7 +306,7 @@ fun AddTask(sheetState: SheetState) {
                 placeholder = {
                     Text(
                         text = "New Task",
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 maxLines = 3,
@@ -314,7 +314,7 @@ fun AddTask(sheetState: SheetState) {
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                 )
             )
 
@@ -335,6 +335,8 @@ fun AddTask(sheetState: SheetState) {
                         Text(
                             "Description",
                             style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+
                             // todo figure out the correct ime padding values to get rid of the bug
                             modifier = Modifier.imePadding()
                         )
