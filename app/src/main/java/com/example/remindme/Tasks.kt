@@ -2,6 +2,7 @@ package com.example.remindme
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -25,6 +27,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LeadingIconTab
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ScrollableTabRow
@@ -43,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -112,8 +116,11 @@ fun TasksParent() {
 
                 if (isSheetOpen) {
                     ModalBottomSheet(
-                        onDismissRequest = { isSheetOpen = false},
-                        content = { },
+                        onDismissRequest = { isSheetOpen = false },
+                        content = {
+                            ListItem(headlineContent = { Text(text = "Rename List") }, modifier = Modifier.clickable {  })
+                            ListItem(headlineContent = { Text(text = "Delete List") }, modifier = Modifier.clickable {  })
+                        },
                         sheetState = sheetState
                     )
                 }
@@ -126,12 +133,25 @@ fun TasksParent() {
                         Column(
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            Row(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = tabList[index], style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = tabList[index],
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                                 IconButton(onClick = { isSheetOpen = true },
-                                    content = { Icon(imageVector = Icons.Default.MoreVert, contentDescription = "List Options")}
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = "List Options"
+                                        )
+                                    }
                                 )
                             }
                         }
@@ -145,7 +165,7 @@ fun TasksParent() {
                     .padding(10.dp),
                     content = {
 
-                })
+                    })
             }
         }
     }
