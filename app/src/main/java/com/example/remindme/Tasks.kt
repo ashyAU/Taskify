@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -55,7 +56,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -147,7 +151,7 @@ fun TasksParent() {
                     .padding(10.dp),
                     content = {
                         Column(
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top
                         ) {
                             Row(
                                 modifier = Modifier
@@ -170,9 +174,34 @@ fun TasksParent() {
                                     }
                                 )
                             }
+                            tasksList.forEachIndexed { index, item ->
+                                var isComplete by rememberSaveable {
+                                    mutableStateOf(false)
+                                }
+
+                                ListItem(
+                                    // todo i am currently using dummy data
+                                    modifier = Modifier.fillMaxWidth(),
+                                    leadingContent = {
+                                        IconButton(onClick = { isComplete = true },
+                                            content = {
+                                                Icon(
+                                                    painterResource(id = if (!isComplete) R.drawable.radio_unchecked else R.drawable.check_circle),
+                                                    contentDescription = "Task completion check"
+                                                )
+                                            }
+                                        )
+                                    },
+
+                                    headlineContent = {
+                                        Text(
+                                            text = item,
+                                            textDecoration = if (isComplete) TextDecoration.LineThrough else TextDecoration.None
+                                        )
+                                    },
+                                )
+                            }
                         }
-
-
                     }
                 )
                 Card(modifier = Modifier
@@ -210,6 +239,7 @@ fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
             isSheetOpen(false)
             text = ""
             descriptionText = ""
+            descriptionOpen = false
         }) {
             LaunchedEffect(Unit) {
                 focusRequester.requestFocus()
@@ -229,7 +259,14 @@ fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
                     value = descriptionText,
                     onValueChange = { descriptionText = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Description", style = MaterialTheme.typography.bodyMedium)}
+                    placeholder = {
+                        Text(
+                            "Description",
+                            style = MaterialTheme.typography.bodyMedium,
+                            // todo figure out the correct ime padding values to get rid of the bug
+                            modifier = Modifier.imePadding()
+                        )
+                    }
                 )
             }
 
@@ -256,12 +293,7 @@ fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
                                 contentDescription = "Schedule Button"
                             )
                         })
-
-
                 }
-
-
-
                 Text(
                     text = "Save",
                     modifier = Modifier.clickable(enabled = text.isNotEmpty())
@@ -276,6 +308,12 @@ fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
         }
     }
 }
+
+val tasksList = listOf(
+    "Do the dishes",
+    "Make the bed",
+    "Go for a run"
+)
 
 
 
