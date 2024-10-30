@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -20,10 +21,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -162,10 +166,14 @@ fun TasksParent() {
                                 var isComplete by rememberSaveable {
                                     mutableStateOf(false)
                                 }
-
                                 ListItem(
+                                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                                     // todo i am currently using dummy data
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            // todo
+                                        },
                                     leadingContent = {
                                         IconButton(onClick = { isComplete = true },
                                             content = {
@@ -180,9 +188,16 @@ fun TasksParent() {
                                     headlineContent = {
                                         Text(
                                             text = item,
+                                            style = MaterialTheme.typography.bodyMedium,
                                             textDecoration = if (isComplete) TextDecoration.LineThrough else TextDecoration.None
                                         )
                                     },
+                                    supportingContent = {
+                                        Text(
+                                            text = "Supporting Text",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
                                 )
                             }
                         }
@@ -193,9 +208,11 @@ fun TasksParent() {
                     .fillMaxWidth()
                     .padding(10.dp),
                     content = {
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                        )
                         {
                             Text(
                                 text = "Completed",
