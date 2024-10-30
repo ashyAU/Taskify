@@ -1,6 +1,16 @@
 package com.example.remindme
 
+import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +42,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +62,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -64,6 +80,7 @@ val tabList = listOf(
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun TasksParent() {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -78,12 +95,20 @@ fun TasksParent() {
         selectedTabIndex = pagerState.targetPage
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+    ) {
+        ScrollableTabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
 
             tabList.forEachIndexed { index, title ->
                 Tab(
-                    text = { Text(title) },
+                    text = { Text(text = title, color = MaterialTheme.colorScheme.onSurface) },
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
                 )
@@ -103,7 +128,7 @@ fun TasksParent() {
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(10.dp)
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest),
         ) { index ->
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -137,10 +162,14 @@ fun TasksParent() {
                 Card(modifier = Modifier
                     .weight(4f)
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(10.dp)
+                    .background(color = MaterialTheme.colorScheme.surfaceContainerLowest),
                     content = {
                         Column(
-                            modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surfaceContainerLow),
+                            verticalArrangement = Arrangement.Top
                         ) {
                             Row(
                                 modifier = Modifier
@@ -163,54 +192,62 @@ fun TasksParent() {
                                 )
                             }
                             tasksList.forEachIndexed { index, item ->
+
                                 var isComplete by rememberSaveable {
                                     mutableStateOf(false)
                                 }
-                                ListItem(
-                                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                                    // todo i am currently using dummy data
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            // todo
-                                        },
-                                    leadingContent = {
-                                        IconButton(onClick = { isComplete = true },
-                                            content = {
-                                                Icon(
-                                                    painterResource(id = if (!isComplete) R.drawable.radio_unchecked else R.drawable.check_circle),
-                                                    contentDescription = "Task completion check"
-                                                )
-                                            }
-                                        )
-                                    },
 
-                                    headlineContent = {
-                                        Text(
-                                            text = item,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            textDecoration = if (isComplete) TextDecoration.LineThrough else TextDecoration.None
-                                        )
-                                    },
-                                    supportingContent = {
-                                        Text(
-                                            text = "Supporting Text",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                )
+                                AnimatedVisibility(
+                                    visible = !isComplete,
+                                    exit = shrinkVertically(animationSpec = tween(600))
+                                ) {
+
+                                    ListItem(
+                                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                                        // todo i am currently using dummy data
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                // todo
+                                            },
+                                        leadingContent = {
+                                            IconButton(onClick = { isComplete = true },
+                                                content = {
+                                                    Icon(
+                                                        painterResource(id = if (!isComplete) R.drawable.radio_unchecked else R.drawable.check_circle),
+                                                        contentDescription = "Task completion check"
+                                                    )
+                                                }
+                                            )
+                                        },
+                                        headlineContent = {
+                                            Text(
+                                                text = item,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                textDecoration = if (isComplete) TextDecoration.LineThrough else TextDecoration.None
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                text = "Supporting Text",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                 )
                 Card(modifier = Modifier
-                    .weight(1f)
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(top = 0.dp, start = 10.dp, end = 10.dp, bottom = 5.dp)
+                    .background(color = MaterialTheme.colorScheme.primaryContainer),
                     content = {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .background(color = MaterialTheme.colorScheme.primaryContainer)
                                 .padding(10.dp)
                         )
                         {
@@ -249,11 +286,14 @@ fun AddTask(sheetState: SheetState) {
     }
 
     if (sheetState.isVisible) {
-        ModalBottomSheet(onDismissRequest = {
-            scope.launch {
-                sheetState.hide()
-            }
-        }) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                scope.launch {
+                    sheetState.hide()
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ) {
             LaunchedEffect(Unit) {
                 focusRequester.requestFocus()
             }
@@ -263,15 +303,34 @@ fun AddTask(sheetState: SheetState) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
-                placeholder = { Text("New Task") },
+                placeholder = {
+                    Text(
+                        text = "New Task",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
                 maxLines = 3,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                )
             )
+
             if (descriptionOpen) {
                 TextField(
                     textStyle = MaterialTheme.typography.bodyMedium,
                     value = descriptionText,
                     onValueChange = { descriptionText = it },
                     modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                    ),
+
                     placeholder = {
                         Text(
                             "Description",
@@ -292,7 +351,10 @@ fun AddTask(sheetState: SheetState) {
             )
             {
                 Row {
-                    IconButton(onClick = { descriptionOpen = !descriptionOpen }, content = {
+                    IconButton(onClick = {
+                        descriptionOpen = !descriptionOpen
+
+                    }, content = {
                         Icon(
                             painterResource(id = if (descriptionOpen) R.drawable.description_filled else R.drawable.description),
                             contentDescription = "Opens a text field for a description"

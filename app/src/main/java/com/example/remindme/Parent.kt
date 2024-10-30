@@ -2,6 +2,7 @@ package com.example.remindme
 
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -12,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -131,16 +133,15 @@ fun ParentComposable() {
                     LaunchedEffect(sheetState) {
                         sheetState.hide()
                     }
-
                     FloatingActionButton(onClick = {
                         scope.launch {
                         sheetState.show() } },
-
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         content = {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "FAB")
                         })
                     AddTask(sheetState = sheetState)
-
                 }
                 AppRoute.Alarm.route -> {
                     FloatingActionButton(onClick = { /*TODO*/ },
