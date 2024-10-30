@@ -46,16 +46,15 @@ interface StopwatchDao {
     suspend fun insertLap(lap: Laps)
 
     // These are the lap queries
-    @Query("DELETE FROM STOPWATCHLAPS") // Add this method to delete all laps
+    @Query("DELETE FROM STOPWATCHLAPS")
     suspend fun deleteAllLaps()
 
     @Query("SELECT * FROM STOPWATCHLAPS")
     fun getLapsById(): Flow<List<Laps>>
 
-    @Query("DELETE FROM sqlite_sequence WHERE name='stopwatchLaps'") // Resets the id counter
+    @Query("DELETE FROM sqlite_sequence WHERE name='stopwatchLaps'")
     suspend fun resetLapId()
 
-    // These are the counter queries.
     @Query("SELECT * FROM counter WHERE id = 0 LIMIT 1")
     suspend fun getCounter(): CounterEntity?
 

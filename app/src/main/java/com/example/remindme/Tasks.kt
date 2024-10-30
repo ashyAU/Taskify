@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardActionScope
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -34,6 +38,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +50,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -118,8 +126,16 @@ fun TasksParent() {
                     ModalBottomSheet(
                         onDismissRequest = { isSheetOpen = false },
                         content = {
-                            ListItem(headlineContent = { Text(text = "Rename List") }, modifier = Modifier.clickable {  })
-                            ListItem(headlineContent = { Text(text = "Delete List") }, modifier = Modifier.clickable {  })
+                            ListItem(
+                                headlineContent = { Text(text = "Rename List") }, modifier =
+                                Modifier.clickable(
+                                    onClick = {
+
+                                    })
+                            )
+                            ListItem(
+                                headlineContent = { Text(text = "Delete List") },
+                                modifier = Modifier.clickable { })
                         },
                         sheetState = sheetState
                     )
@@ -164,11 +180,102 @@ fun TasksParent() {
                     .fillMaxWidth()
                     .padding(10.dp),
                     content = {
-
                     })
             }
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddTask(isSheetOpen: (Boolean) -> Unit, sheetOpen: Boolean) {
+    val sheetState = rememberModalBottomSheetState()
+    var text by rememberSaveable {
+        mutableStateOf("")
+    }
+    val focusRequester by remember {
+        mutableStateOf(FocusRequester())
+    }
+    var descriptionOpen by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var descriptionText by rememberSaveable {
+        mutableStateOf("")
+    }
+
+
+    if (sheetOpen) {
+
+        ModalBottomSheet(onDismissRequest = {
+            isSheetOpen(false)
+            text = ""
+            descriptionText = ""
+        }) {
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                placeholder = { Text("New Task") },
+                maxLines = 3,
+            )
+            if (descriptionOpen) {
+                TextField(
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    value = descriptionText,
+                    onValueChange = { descriptionText = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Description", style = MaterialTheme.typography.bodyMedium)}
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            )
+            {
+                Row {
+                    IconButton(onClick = { descriptionOpen = !descriptionOpen }, content = {
+                        Icon(
+                            painterResource(id = if (descriptionOpen) R.drawable.description_filled else R.drawable.description),
+                            contentDescription = "Opens a text field for a description"
+                        )
+                    })
+                    IconButton(
+                        onClick = {/*todo */ },
+                        content = {
+                            Icon(
+                                painterResource(id = R.drawable.schedule),
+                                contentDescription = "Schedule Button"
+                            )
+                        })
+
+
+                }
+
+
+
+                Text(
+                    text = "Save",
+                    modifier = Modifier.clickable(enabled = text.isNotEmpty())
+                    {
+                        /* todo add task to the database. */
+                    },
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+            }
+        }
+    }
+}
+
 
 
