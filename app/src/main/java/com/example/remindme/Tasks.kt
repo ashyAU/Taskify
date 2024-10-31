@@ -1,14 +1,8 @@
 package com.example.remindme
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideOut
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,30 +13,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -62,27 +51,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewDynamicColors
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import com.example.remindme.database.StopwatchViewModel
 import com.example.remindme.database.TasksViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 
-
-val tabList = listOf(
-    "List1",
-    "List2",
-    "List3",
-    "List4",
-    "List5",
-    "List6"
-)
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +78,8 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
     LaunchedEffect(pagerState.targetPage) {
         selectedTabIndex = pagerState.targetPage
     }
+    var currentGroup by rememberSaveable { mutableStateOf("")}
+
 
 
     Column(
@@ -139,6 +117,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest),
         ) { index ->
+            currentGroup = tasks[index].groupName
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly
@@ -181,7 +160,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                                     }
                                 )
                             }
-                            tasksList.forEachIndexed { index, item ->
+                            tasksList.forEachIndexed { _, item ->
 
                                 var isComplete by rememberSaveable {
                                     mutableStateOf(false)
@@ -261,11 +240,16 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                             )
                             ListItem(
                                 headlineContent = { Text(text = "Delete List") },
-                                modifier = Modifier.clickable { })
+                                modifier = Modifier.clickable(onClick = {
+                                    tasksViewModel.deleteTaskGroup(groupName = currentGroup)
+
+                                }))
                         },
                         sheetState = sheetState
                     )
+
                 }
+
             }
         }
     }

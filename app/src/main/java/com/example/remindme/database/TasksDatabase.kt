@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Dao
 import androidx.room.Database
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
@@ -31,7 +32,11 @@ interface TasksDao {
 
     @Query("SELECT * FROM TASKGROUP")
     fun getTasksGroupById(): Flow<List<TasksGroup>>
+
+    @Query("DELETE FROM TASKGROUP WHERE groupName = :groupName")
+    suspend fun deleteTaskGroup(groupName: String)
 }
+
 @Database(
     entities = [TasksGroup::class],
     version = 1
@@ -56,6 +61,7 @@ abstract class TasksDatabase : RoomDatabase() {
         }
     }
 }
+
 @HiltViewModel
 class TasksViewModel @Inject constructor(private val tasksDao: TasksDao): ViewModel() {
     val allTasks: Flow<List<TasksGroup>> = tasksDao.getTasksGroupById()
@@ -63,6 +69,11 @@ class TasksViewModel @Inject constructor(private val tasksDao: TasksDao): ViewMo
     fun addTaskGroup(groupName: String) {
         viewModelScope.launch {
             tasksDao.insertTaskGroup(TasksGroup(groupName = groupName))
+        }
+    }
+    fun deleteTaskGroup(groupName: String) {
+        viewModelScope.launch {
+            tasksDao.deleteTaskGroup(groupName = groupName)
         }
     }
 
