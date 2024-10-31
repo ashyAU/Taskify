@@ -1,5 +1,6 @@
 package com.example.remindme
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.shrinkVertically
@@ -29,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -48,15 +50,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import com.example.remindme.database.TasksViewModel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 
 
@@ -67,8 +70,6 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
 
     val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
 
-
-
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(pageCount = { tasks.size })
 
@@ -78,7 +79,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
     LaunchedEffect(pagerState.targetPage) {
         selectedTabIndex = pagerState.targetPage
     }
-    var currentGroup by rememberSaveable { mutableStateOf("")}
+    var currentGroup by rememberSaveable { mutableStateOf("") }
 
 
 
@@ -94,15 +95,22 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
 
             tasks.forEachIndexed { index, task ->
                 Tab(
-                    text = { Text(text = task.groupName, color = MaterialTheme.colorScheme.onSurface) },
+                    text = {
+                        Text(
+                            text = task.groupName,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
                 )
             }
             LeadingIconTab(
                 selected = false,
-                onClick = { tasksViewModel.addTaskGroup(groupName = "GroupName ${tasks.size}")
-                /* todo add a custom page to add a new item to the list */ },
+                onClick = {
+                    tasksViewModel.addTaskGroup(groupName = "GroupName ${tasks.size}")
+                    /* todo add a custom page to add a new item to the list */
+                },
                 text = { Text("New List") },
                 icon = {
                     Icon(
@@ -228,6 +236,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                     })
 
                 if (isSheetOpen) {
+
                     ModalBottomSheet(
                         onDismissRequest = { isSheetOpen = false },
                         content = {
@@ -235,21 +244,20 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                                 headlineContent = { Text(text = "Rename List") }, modifier =
                                 Modifier.clickable(
                                     onClick = {
-
+                                        // todo, this is the renaming section, not sure how ill integrate
                                     })
                             )
                             ListItem(
                                 headlineContent = { Text(text = "Delete List") },
                                 modifier = Modifier.clickable(onClick = {
                                     tasksViewModel.deleteTaskGroup(groupName = currentGroup)
-
-                                }))
+                                    isSheetOpen = false
+                                })
+                            )
                         },
                         sheetState = sheetState
                     )
-
                 }
-
             }
         }
     }
