@@ -1,4 +1,4 @@
-package com.example.remindme.stopwatch
+package com.example.remindme
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -38,7 +38,6 @@ data class CounterEntity(
     val lastUpdatedTime: Long = 0,
     val isStarted: Boolean = false
 )
-
 
 @Dao
 interface StopwatchDao {
