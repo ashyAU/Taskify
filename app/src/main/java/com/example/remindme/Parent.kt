@@ -169,14 +169,17 @@ fun ParentComposable() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(AppRoute.Alarm.route) { AlarmParent() }
-            composable(AppRoute.Tasks.route) { TasksParent() }
-            composable(AppRoute.Stopwatch.route) { navBackStackEntry ->
-                StopwatchParent(
-                    navController = navController,
+            composable(AppRoute.Tasks.route) { navBackStackEntry ->
+                TasksParent(
                     navBackStackEntry = navBackStackEntry
                 )
             }
-            composable(AppRoute.Timer.route) { TasksParent() }
+            composable(AppRoute.Stopwatch.route) { navBackStackEntry ->
+                StopwatchParent(
+                    navBackStackEntry = navBackStackEntry
+                )
+            }
+            composable(AppRoute.Timer.route) { }
             composable(
                 enterTransition = { slideInHorizontally() },
                 exitTransition = { slideOutHorizontally() },

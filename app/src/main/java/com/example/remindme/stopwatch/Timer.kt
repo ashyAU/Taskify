@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.remindme.StopwatchViewModel
+import com.example.remindme.database.StopwatchViewModel
 import kotlinx.coroutines.delay
 import java.util.Locale
 import kotlin.time.Duration

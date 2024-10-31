@@ -25,11 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import com.example.remindme.StopwatchViewModel
+import com.example.remindme.database.StopwatchViewModel
 
 
 @Composable
-fun StopwatchParent(navController: NavController, navBackStackEntry: NavBackStackEntry) {
+fun StopwatchParent(navBackStackEntry: NavBackStackEntry) {
 
     val stopwatchViewModel: StopwatchViewModel = hiltViewModel(navBackStackEntry)
 

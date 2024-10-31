@@ -1,4 +1,4 @@
-package com.example.remindme
+package com.example.remindme.database
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -12,16 +12,10 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
 @Entity(tableName = "stopwatchLaps")
@@ -87,22 +81,6 @@ abstract class StopwatchDatabase : RoomDatabase() {
     }
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DatabaseModule {
-
-    @Provides
-    @Singleton
-    fun provideLapDatabase(@ApplicationContext context: Context): StopwatchDatabase {
-        return StopwatchDatabase.getDatabase(context)
-    }
-
-    @Provides
-    fun provideLapDao(database: StopwatchDatabase): StopwatchDao {
-        return database.dao()
-    }
-
-}
 
 @HiltViewModel
 class StopwatchViewModel @Inject constructor(private val stopwatchDao: StopwatchDao) : ViewModel() {

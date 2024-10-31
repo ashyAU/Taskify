@@ -47,6 +47,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +66,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
+import com.example.remindme.database.StopwatchViewModel
+import com.example.remindme.database.TasksViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -79,13 +84,18 @@ val tabList = listOf(
 )
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun TasksParent() {
+fun TasksParent(navBackStackEntry: NavBackStackEntry) {
+    val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
+
+    //     val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
+    val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
+
+
+
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState {
-        tabList.size
+        tasks.size
     }
 
     LaunchedEffect(selectedTabIndex) {
@@ -106,9 +116,9 @@ fun TasksParent() {
             containerColor = MaterialTheme.colorScheme.surface
         ) {
 
-            tabList.forEachIndexed { index, title ->
+            tasks.forEachIndexed { index, task ->
                 Tab(
-                    text = { Text(text = title, color = MaterialTheme.colorScheme.onSurface) },
+                    text = { Text(text = task.groupName, color = MaterialTheme.colorScheme.onSurface) },
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
                 )

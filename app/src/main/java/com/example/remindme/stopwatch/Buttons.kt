@@ -20,7 +20,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.remindme.R
-import com.example.remindme.StopwatchViewModel
+import com.example.remindme.database.StopwatchViewModel
 
 @Composable
 fun StopwatchButtons(
