@@ -71,6 +71,7 @@ import androidx.navigation.NavBackStackEntry
 import com.example.remindme.database.StopwatchViewModel
 import com.example.remindme.database.TasksViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 
 
@@ -88,15 +89,12 @@ val tabList = listOf(
 fun TasksParent(navBackStackEntry: NavBackStackEntry) {
     val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
 
-    //     val laps by stopwatchViewModel.allLaps.collectAsState(initial = emptyList())
     val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
 
 
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val pagerState = rememberPagerState {
-        tasks.size
-    }
+    val pagerState = rememberPagerState(pageCount = { tasks.size })
 
     LaunchedEffect(selectedTabIndex) {
         pagerState.animateScrollToPage(selectedTabIndex)
@@ -125,7 +123,8 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
             }
             LeadingIconTab(
                 selected = false,
-                onClick = { /* todo add a custom page to add a new item to the list */ },
+                onClick = { tasksViewModel.addTaskGroup(groupName = "GroupName ${tasks.size}")
+                /* todo add a custom page to add a new item to the list */ },
                 text = { Text("New List") },
                 icon = {
                     Icon(
@@ -150,25 +149,6 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                     mutableStateOf(false)
                 }
 
-                if (isSheetOpen) {
-                    ModalBottomSheet(
-                        onDismissRequest = { isSheetOpen = false },
-                        content = {
-                            ListItem(
-                                headlineContent = { Text(text = "Rename List") }, modifier =
-                                Modifier.clickable(
-                                    onClick = {
-
-                                    })
-                            )
-                            ListItem(
-                                headlineContent = { Text(text = "Delete List") },
-                                modifier = Modifier.clickable { })
-                        },
-                        sheetState = sheetState
-                    )
-                }
-
                 Card(modifier = Modifier
                     .weight(4f)
                     .fillMaxWidth()
@@ -189,7 +169,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = tabList[index],
+                                    text = tasks[index].groupName,
                                     style = MaterialTheme.typography.titleLarge,
                                 )
                                 IconButton(onClick = { isSheetOpen = true },
@@ -267,6 +247,25 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                             )
                         }
                     })
+
+                if (isSheetOpen) {
+                    ModalBottomSheet(
+                        onDismissRequest = { isSheetOpen = false },
+                        content = {
+                            ListItem(
+                                headlineContent = { Text(text = "Rename List") }, modifier =
+                                Modifier.clickable(
+                                    onClick = {
+
+                                    })
+                            )
+                            ListItem(
+                                headlineContent = { Text(text = "Delete List") },
+                                modifier = Modifier.clickable { })
+                        },
+                        sheetState = sheetState
+                    )
+                }
             }
         }
     }
