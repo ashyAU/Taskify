@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +33,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -62,16 +65,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun TasksParent(navBackStackEntry: NavBackStackEntry) {
     val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
+    val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
+
     var bottomSheetTasks by remember {
         mutableStateOf(BottomSheetTasks.Default)
     }
-    val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
+
     var isSheetOpen by remember {
         mutableStateOf(false)
     }
 
     // this is the delegate for BottomSheets
-    BottomSheetDelegate(bottomSheetTasks = bottomSheetTasks, navBackStackEntry = navBackStackEntry, isSheetOpen = isSheetOpen, onSheetOpen = { isSheetOpen = it})
+    BottomSheetDelegate(
+        bottomSheetTasks = bottomSheetTasks,
+        tasksViewModel = tasksViewModel,
+        isSheetOpen = isSheetOpen,
+        onSheetOpen = { isSheetOpen = it })
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(pageCount = { tasks.size })
@@ -256,6 +265,7 @@ fun AddTask(sheetState: SheetState) {
     }
     val scope = rememberCoroutineScope()
 
+
     LaunchedEffect(!sheetState.isVisible) {
         text = ""
         descriptionText = ""
@@ -371,7 +381,70 @@ fun AddTask(sheetState: SheetState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun AddGroup(
+    isSheetOpen: Boolean,
+    onSheetOpen: (Boolean) -> Unit,
+    tasksViewModel: TasksViewModel
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+    val focusRequester by remember {
+        mutableStateOf(FocusRequester())
+    }
+    if (isSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                onSheetOpen(false)
+                text = ""
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            content = {
 
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+                Column(Modifier.fillMaxWidth()) {
+                    TextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        placeholder = {
+                            Text(
+                                text = "New List",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        maxLines = 3,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    )
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd)
+                    {
+                        TextButton(
+                            content = {
+                                Text(
+                                    text = "Add",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            onClick = {
+                                tasksViewModel.addTaskGroup(groupName = text)
+                            }
+                        )
+                    }
+                }
+            })
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ConfigureGroup(
     isSheetOpen: Boolean,
     onSheetOpen: (Boolean) -> Unit,
@@ -415,13 +488,11 @@ enum class BottomSheetTasks {
 @Composable
 fun BottomSheetDelegate(
     bottomSheetTasks: BottomSheetTasks,
-    navBackStackEntry: NavBackStackEntry,
+    tasksViewModel: TasksViewModel,
     isSheetOpen: Boolean,
     onSheetOpen: (Boolean) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
-
-    val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
 
     val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
 
@@ -431,6 +502,11 @@ fun BottomSheetDelegate(
         }
 
         BottomSheetTasks.AddGroup -> {
+            AddGroup(
+                isSheetOpen = isSheetOpen,
+                onSheetOpen = onSheetOpen,
+                tasksViewModel = tasksViewModel
+            )
         }
 
         BottomSheetTasks.ConfigureGroup -> {
@@ -441,9 +517,7 @@ fun BottomSheetDelegate(
             )
         }
 
-        BottomSheetTasks.Default -> {
-
-        }
+        BottomSheetTasks.Default -> {}
     }
 }
 
