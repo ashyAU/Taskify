@@ -151,7 +151,6 @@ fun ParentComposable() {
                         content = {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "FAB")
                         })
-                    AddTask(sheetState = sheetState)
                 }
 
                 AppRoute.Alarm.route -> {
@@ -170,9 +169,7 @@ fun ParentComposable() {
         ) {
             composable(AppRoute.Alarm.route) { AlarmParent() }
             composable(AppRoute.Tasks.route) { navBackStackEntry ->
-                TasksParent(
-                    navBackStackEntry = navBackStackEntry
-                )
+
             }
             composable(AppRoute.Stopwatch.route) { navBackStackEntry ->
                 StopwatchParent(

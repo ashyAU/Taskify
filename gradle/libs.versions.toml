@@ -1,6 +1,6 @@
 [versions]
 activityComposeVersion = "1.6.0"
-agp = "8.5.1"
+agp = "8.7.2"
 coreKtxVersion = "1.12.0"
 googleHiltAndroid = "2.45"
 googleHiltAndroidVersion = "2.44"

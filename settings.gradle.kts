@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RemindMe!"
+rootProject.name = "Taskify"
 include(":app")
  
