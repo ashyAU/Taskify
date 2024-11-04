@@ -80,7 +80,7 @@ class TasksViewModel @Inject constructor(private val tasksDao: TasksDao): ViewMo
             tasksDao.deleteTaskGroup(groupName = groupName)
         }
     }
-    fun updateTaskName(id: Int, newGroupName: String)
+    fun updateGroupName(id: Int, newGroupName: String)
     {
         viewModelScope.launch {
             tasksDao.updateTaskGroupName(id, newGroupName)

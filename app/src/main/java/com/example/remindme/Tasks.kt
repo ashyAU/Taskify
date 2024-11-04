@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -456,30 +457,101 @@ fun ConfigureGroup(
     isSheetOpen: Boolean,
     onSheetOpen: (Boolean) -> Unit,
     tasksViewModel: TasksViewModel,
-    selectedTask: StoreGroup
+    selectedTask: StoreGroup,
 ) {
+    var newGroupName by rememberSaveable { mutableStateOf("") }
+    val focusRequester by remember {
+        mutableStateOf(FocusRequester())
+    }
+    var renameClicked by rememberSaveable {
+        mutableStateOf(false)
+    }
     if (isSheetOpen) {
         ModalBottomSheet(
-            onDismissRequest = { onSheetOpen(false) },
+            onDismissRequest = {
+                onSheetOpen(false)
+                renameClicked = false
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             content = {
-                ListItem(
-                    headlineContent = { Text(text = "Rename List") }, modifier =
-                    Modifier.clickable(
-                        onClick = {
+                if (renameClicked) {
 
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
+                    Column(Modifier.fillMaxWidth()) {
+                        TextField(
+                            value = newGroupName,
+                            onValueChange = { newGroupName = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
+                            placeholder = {
+                                Text(
+                                    text = "Rename List",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            maxLines = 3,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            )
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterEnd
+                        )
+                        {
+                            TextButton(
+                                content = {
+                                    Text(
+                                        text = "Rename",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                },
+                                onClick = {
+                                    tasksViewModel.updateGroupName(
+                                        id = selectedTask.id,
+                                        newGroupName = newGroupName
+                                    )
+                                    renameClicked = false
+                                    onSheetOpen(false)
+                                }
+                            )
+                        }
+                    }
+                } else {
+
+                    ListItem(
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
+                        headlineContent = { Text(text = "Rename List") }, modifier =
+                        Modifier.clickable(
+                            onClick = {
+                                renameClicked = true
+                            })
+                    )
+                    ListItem(
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
+                        headlineContent = { Text(text = "Delete List") },
+                        modifier = Modifier.clickable(onClick = {
+                            tasksViewModel.deleteTaskGroup(selectedTask.groupName)
+                            onSheetOpen(false)
                         })
-                )
-                ListItem(
-                    headlineContent = { Text(text = "Delete List") },
-                    modifier = Modifier.clickable(onClick = {
-                        tasksViewModel.deleteTaskGroup(selectedTask.groupName)
-                        onSheetOpen(false)
-                    })
-                )
+                    )
+                }
+
             },
         )
-
     }
+
 }
 
 val tasksList = mutableListOf(
@@ -503,10 +575,9 @@ fun BottomSheetDelegate(
     tasksViewModel: TasksViewModel,
     isSheetOpen: Boolean,
     onSheetOpen: (Boolean) -> Unit,
-    selectedTask: StoreGroup
+    selectedTask: StoreGroup,
 ) {
     val sheetState = rememberModalBottomSheetState()
-
 
     when (bottomSheetTasks) {
         BottomSheetTasks.AddTasks -> {
@@ -530,7 +601,9 @@ fun BottomSheetDelegate(
             )
         }
 
-        BottomSheetTasks.Default -> {}
+        BottomSheetTasks.Default -> {
+
+        }
     }
 }
 
