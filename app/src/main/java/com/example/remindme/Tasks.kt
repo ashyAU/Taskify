@@ -1,6 +1,5 @@
 package com.example.remindme
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.shrinkVertically
@@ -30,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -50,16 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import com.example.remindme.database.TasksViewModel
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 
 
@@ -67,8 +62,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun TasksParent(navBackStackEntry: NavBackStackEntry) {
     val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
-
+    var bottomSheetTasks by remember {
+        mutableStateOf(BottomSheetTasks.Default)
+    }
     val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
+    var isSheetOpen by remember {
+        mutableStateOf(false)
+    }
+
+    // this is the delegate for BottomSheets
+    BottomSheetDelegate(bottomSheetTasks = bottomSheetTasks, navBackStackEntry = navBackStackEntry, isSheetOpen = isSheetOpen, onSheetOpen = { isSheetOpen = it})
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(pageCount = { tasks.size })
@@ -81,8 +84,6 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
     }
     var currentGroup by rememberSaveable { mutableStateOf("") }
 
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -92,7 +93,6 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
             selectedTabIndex = selectedTabIndex,
             containerColor = MaterialTheme.colorScheme.surface
         ) {
-
             tasks.forEachIndexed { index, task ->
                 Tab(
                     text = {
@@ -108,8 +108,8 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
             LeadingIconTab(
                 selected = false,
                 onClick = {
-                    tasksViewModel.addTaskGroup(groupName = "GroupName ${tasks.size}")
-                    /* todo add a custom page to add a new item to the list */
+                    isSheetOpen = true
+                    bottomSheetTasks = BottomSheetTasks.AddGroup
                 },
                 text = { Text("New List") },
                 icon = {
@@ -130,11 +130,6 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-
-                val sheetState = rememberModalBottomSheetState()
-                var isSheetOpen by rememberSaveable {
-                    mutableStateOf(false)
-                }
 
                 Card(modifier = Modifier
                     .weight(4f)
@@ -159,7 +154,11 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                                     text = tasks[index].groupName,
                                     style = MaterialTheme.typography.titleLarge,
                                 )
-                                IconButton(onClick = { isSheetOpen = true },
+
+                                IconButton(onClick = {
+                                    isSheetOpen = true
+                                    bottomSheetTasks = BottomSheetTasks.ConfigureGroup
+                                },
                                     content = {
                                         Icon(
                                             imageVector = Icons.Default.MoreVert,
@@ -235,29 +234,6 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                         }
                     })
 
-                if (isSheetOpen) {
-
-                    ModalBottomSheet(
-                        onDismissRequest = { isSheetOpen = false },
-                        content = {
-                            ListItem(
-                                headlineContent = { Text(text = "Rename List") }, modifier =
-                                Modifier.clickable(
-                                    onClick = {
-                                        // todo, this is the renaming section, not sure how ill integrate
-                                    })
-                            )
-                            ListItem(
-                                headlineContent = { Text(text = "Delete List") },
-                                modifier = Modifier.clickable(onClick = {
-                                    tasksViewModel.deleteTaskGroup(groupName = currentGroup)
-                                    isSheetOpen = false
-                                })
-                            )
-                        },
-                        sheetState = sheetState
-                    )
-                }
             }
         }
     }
@@ -392,11 +368,83 @@ fun AddTask(sheetState: SheetState) {
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+
+fun ConfigureGroup(
+    isSheetOpen: Boolean,
+    onSheetOpen: (Boolean) -> Unit,
+    tasksViewModel: TasksViewModel
+) {
+    if (isSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { onSheetOpen(false) },
+            content = {
+                ListItem(
+                    headlineContent = { Text(text = "Rename List") }, modifier =
+                    Modifier.clickable(
+                        onClick = {
+                        })
+                )
+                ListItem(
+                    headlineContent = { Text(text = "Delete List") },
+                    modifier = Modifier.clickable(onClick = {
+                    })
+                )
+            },
+        )
+
+    }
+}
+
 val tasksList = mutableListOf(
     "Do the dishes",
     "Make the bed",
     "Go for a run"
 )
 
+enum class BottomSheetTasks {
+    AddGroup,
+    AddTasks,
+    ConfigureGroup,
+    Default
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheetDelegate(
+    bottomSheetTasks: BottomSheetTasks,
+    navBackStackEntry: NavBackStackEntry,
+    isSheetOpen: Boolean,
+    onSheetOpen: (Boolean) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState()
+
+    val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
+
+    val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
+
+    when (bottomSheetTasks) {
+        BottomSheetTasks.AddTasks -> {
+            AddTask(sheetState = sheetState)
+        }
+
+        BottomSheetTasks.AddGroup -> {
+        }
+
+        BottomSheetTasks.ConfigureGroup -> {
+            ConfigureGroup(
+                isSheetOpen = isSheetOpen,
+                onSheetOpen = onSheetOpen,
+                tasksViewModel = tasksViewModel
+            )
+        }
+
+        BottomSheetTasks.Default -> {
+
+        }
+    }
+}
 
 
