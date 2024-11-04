@@ -71,7 +71,6 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
         mutableStateOf(StoreGroup())
     }
 
-
     var bottomSheetTasks by remember {
         mutableStateOf(BottomSheetTasks.Default)
     }
@@ -106,34 +105,27 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
     ) {
         ScrollableTabRow(
-            selectedTabIndex = selectedTabIndex,
-            containerColor = MaterialTheme.colorScheme.surface
+            selectedTabIndex = selectedTabIndex, containerColor = MaterialTheme.colorScheme.surface
         ) {
             tasks.forEachIndexed { index, task ->
                 Tab(
                     text = {
                         Text(
-                            text = task.groupName,
-                            color = MaterialTheme.colorScheme.onSurface
+                            text = task.groupName, color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
                 )
             }
-            LeadingIconTab(
-                selected = false,
-                onClick = {
-                    isSheetOpen = true
-                    bottomSheetTasks = BottomSheetTasks.AddGroup
-                },
-                text = { Text("New List") },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add item to List"
-                    )
-                })
+            LeadingIconTab(selected = false, onClick = {
+                isSheetOpen = true
+                bottomSheetTasks = BottomSheetTasks.AddGroup
+            }, text = { Text("New List") }, icon = {
+                Icon(
+                    imageVector = Icons.Default.Add, contentDescription = "Add item to List"
+                )
+            })
         }
         HorizontalPager(
             state = pagerState,
@@ -144,8 +136,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
             selectedTask = StoreGroup(tasks[index].id, tasks[index].groupName)
             currentGroup = tasks[index].groupName
             Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceEvenly
             ) {
 
                 Card(modifier = Modifier
@@ -175,14 +166,12 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                                 IconButton(onClick = {
                                     isSheetOpen = true
                                     bottomSheetTasks = BottomSheetTasks.ConfigureGroup
-                                },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Default.MoreVert,
-                                            contentDescription = "List Options"
-                                        )
-                                    }
-                                )
+                                }, content = {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "List Options"
+                                    )
+                                })
                             }
                             tasksList.forEachIndexed { _, item ->
 
@@ -195,43 +184,35 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                                     exit = shrinkVertically(animationSpec = tween(600))
                                 ) {
 
-                                    ListItem(
-                                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                                    ListItem(colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                                         // todo i am currently using dummy data
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clickable {
                                                 // todo
-                                            },
-                                        leadingContent = {
-                                            IconButton(onClick = { isComplete = true },
-                                                content = {
-                                                    Icon(
-                                                        painterResource(id = if (!isComplete) R.drawable.radio_unchecked else R.drawable.check_circle),
-                                                        contentDescription = "Task completion check"
-                                                    )
-                                                }
-                                            )
-                                        },
-                                        headlineContent = {
+                                            }, leadingContent = {
+                                            IconButton(onClick = { isComplete = true }, content = {
+                                                Icon(
+                                                    painterResource(id = if (!isComplete) R.drawable.radio_unchecked else R.drawable.check_circle),
+                                                    contentDescription = "Task completion check"
+                                                )
+                                            })
+                                        }, headlineContent = {
                                             Text(
                                                 text = item,
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 textDecoration = if (isComplete) TextDecoration.LineThrough else TextDecoration.None
                                             )
-                                        },
-                                        supportingContent = {
+                                        }, supportingContent = {
                                             Text(
                                                 text = "Supporting Text",
                                                 style = MaterialTheme.typography.bodySmall
                                             )
-                                        }
-                                    )
+                                        })
                                 }
                             }
                         }
-                    }
-                )
+                    })
                 Card(modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 0.dp, start = 10.dp, end = 10.dp, bottom = 5.dp)
@@ -242,8 +223,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                                 .fillMaxWidth()
                                 .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
                                 .padding(10.dp)
-                        )
-                        {
+                        ) {
                             Text(
                                 text = "Completed",
                                 style = MaterialTheme.typography.titleLarge,
@@ -286,8 +266,7 @@ fun AddTask(sheetState: SheetState) {
                 scope.launch {
                     sheetState.hide()
                 }
-            },
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            }, containerColor = MaterialTheme.colorScheme.surfaceContainer
         ) {
             LaunchedEffect(Unit) {
                 focusRequester.requestFocus()
@@ -300,8 +279,7 @@ fun AddTask(sheetState: SheetState) {
                     .focusRequester(focusRequester),
                 placeholder = {
                     Text(
-                        text = "New Task",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "New Task", color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 maxLines = 3,
@@ -314,8 +292,7 @@ fun AddTask(sheetState: SheetState) {
             )
 
             if (descriptionOpen) {
-                TextField(
-                    textStyle = MaterialTheme.typography.bodyMedium,
+                TextField(textStyle = MaterialTheme.typography.bodyMedium,
                     value = descriptionText,
                     onValueChange = { descriptionText = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -335,8 +312,7 @@ fun AddTask(sheetState: SheetState) {
                             // todo figure out the correct ime padding values to get rid of the bug
                             modifier = Modifier.imePadding()
                         )
-                    }
-                )
+                    })
             }
 
             Row(
@@ -345,8 +321,7 @@ fun AddTask(sheetState: SheetState) {
                     .padding(end = 15.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
-            )
-            {
+            ) {
                 Row {
                     IconButton(onClick = {
                         descriptionOpen = !descriptionOpen
@@ -357,29 +332,21 @@ fun AddTask(sheetState: SheetState) {
                             contentDescription = "Opens a text field for a description"
                         )
                     })
-                    IconButton(
-                        onClick = {/*todo */ },
-                        content = {
-                            Icon(
-                                painterResource(id = R.drawable.schedule),
-                                contentDescription = "Schedule Button"
-                            )
-                        })
+                    IconButton(onClick = {/*todo */ }, content = {
+                        Icon(
+                            painterResource(id = R.drawable.schedule),
+                            contentDescription = "Schedule Button"
+                        )
+                    })
                 }
                 Text(
-                    text = "Save",
-                    modifier = Modifier.clickable(enabled = text.isNotEmpty())
-                    {
+                    text = "Save", modifier = Modifier.clickable(enabled = text.isNotEmpty()) {
                         scope.launch {
                             if (sheetState.isVisible) {
                                 sheetState.hide()
                             }
-                        }
-
-                        /* todo add task to the database. */
-                    },
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold
+                        }/* todo add task to the database. */
+                    }, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -390,64 +357,58 @@ fun AddTask(sheetState: SheetState) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddGroup(
-    isSheetOpen: Boolean,
-    onSheetOpen: (Boolean) -> Unit,
-    tasksViewModel: TasksViewModel
+    isSheetOpen: Boolean, onSheetOpen: (Boolean) -> Unit, tasksViewModel: TasksViewModel
 ) {
     var text by rememberSaveable { mutableStateOf("") }
     val focusRequester by remember {
         mutableStateOf(FocusRequester())
     }
     if (isSheetOpen) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                onSheetOpen(false)
-                text = ""
-            },
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            content = {
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
-                Column(Modifier.fillMaxWidth()) {
-                    TextField(
-                        value = text,
-                        onValueChange = { text = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester),
-                        placeholder = {
-                            Text(
-                                text = "New List",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        maxLines = 3,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        ModalBottomSheet(onDismissRequest = {
+            onSheetOpen(false)
+            text = ""
+        }, containerColor = MaterialTheme.colorScheme.surfaceContainer, content = {
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+            Column(Modifier.fillMaxWidth()) {
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    placeholder = {
+                        Text(
+                            text = "New List",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    },
+                    maxLines = 3,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     )
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd)
-                    {
-                        TextButton(
-                            content = {
-                                Text(
-                                    text = "Add",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            },
-                            onClick = {
-                                tasksViewModel.addTaskGroup(groupName = text)
-                                onSheetOpen(false)
-                            }
+                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    TextButton(content = {
+                        Text(
+                            text = "Add",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold
                         )
-                    }
+                    }, onClick = {
+                        tasksViewModel.addTaskGroup(groupName = text)
+                        onSheetOpen(false)
+                    })
                 }
-            })
+            }
+        })
     }
 }
 
@@ -471,6 +432,7 @@ fun ConfigureGroup(
             onDismissRequest = {
                 onSheetOpen(false)
                 renameClicked = false
+                newGroupName = ""
             },
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             content = {
@@ -503,25 +465,20 @@ fun ConfigureGroup(
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.CenterEnd
-                        )
-                        {
-                            TextButton(
-                                content = {
-                                    Text(
-                                        text = "Rename",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                },
-                                onClick = {
-                                    tasksViewModel.updateGroupName(
-                                        id = selectedTask.id,
-                                        newGroupName = newGroupName
-                                    )
-                                    renameClicked = false
-                                    onSheetOpen(false)
-                                }
-                            )
+                        ) {
+                            TextButton(content = {
+                                Text(
+                                    text = "Rename",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }, onClick = {
+                                tasksViewModel.updateGroupName(
+                                    id = selectedTask.id, newGroupName = newGroupName
+                                )
+                                renameClicked = false
+                                onSheetOpen(false)
+                            })
                         }
                     }
                 } else {
@@ -530,16 +487,14 @@ fun ConfigureGroup(
                         colors = ListItemDefaults.colors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainer,
                         ),
-                        headlineContent = { Text(text = "Rename List") }, modifier =
-                        Modifier.clickable(
-                            onClick = {
-                                renameClicked = true
-                            })
+                        headlineContent = { Text(text = "Rename List") },
+                        modifier = Modifier.clickable(onClick = {
+                            renameClicked = true
+                        })
                     )
-                    ListItem(
-                        colors = ListItemDefaults.colors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        ),
+                    ListItem(colors = ListItemDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    ),
                         headlineContent = { Text(text = "Delete List") },
                         modifier = Modifier.clickable(onClick = {
                             tasksViewModel.deleteTaskGroup(selectedTask.groupName)
@@ -547,25 +502,18 @@ fun ConfigureGroup(
                         })
                     )
                 }
-
             },
         )
     }
-
 }
 
 val tasksList = mutableListOf(
-    "Do the dishes",
-    "Make the bed",
-    "Go for a run"
+    "Do the dishes", "Make the bed", "Go for a run"
 )
 
 
 enum class BottomSheetTasks {
-    AddGroup,
-    AddTasks,
-    ConfigureGroup,
-    Default
+    AddGroup, AddTasks, ConfigureGroup, Default
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -602,9 +550,6 @@ fun BottomSheetDelegate(
         }
 
         BottomSheetTasks.Default -> {
-
         }
     }
 }
-
-
