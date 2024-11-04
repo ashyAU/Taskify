@@ -19,7 +19,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -60,12 +59,17 @@ import androidx.navigation.NavBackStackEntry
 import com.example.remindme.database.TasksViewModel
 import kotlinx.coroutines.launch
 
+data class StoreGroup(val id: Int = 0, val groupName: String = "")
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TasksParent(navBackStackEntry: NavBackStackEntry) {
     val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
     val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
+    var selectedTask by remember {
+        mutableStateOf(StoreGroup())
+    }
+
 
     var bottomSheetTasks by remember {
         mutableStateOf(BottomSheetTasks.Default)
@@ -80,7 +84,9 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
         bottomSheetTasks = bottomSheetTasks,
         tasksViewModel = tasksViewModel,
         isSheetOpen = isSheetOpen,
-        onSheetOpen = { isSheetOpen = it })
+        onSheetOpen = { isSheetOpen = it },
+        selectedTask = selectedTask
+    )
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(pageCount = { tasks.size })
@@ -134,6 +140,7 @@ fun TasksParent(navBackStackEntry: NavBackStackEntry) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest),
         ) { index ->
+            selectedTask = StoreGroup(tasks[index].id, tasks[index].groupName)
             currentGroup = tasks[index].groupName
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -398,7 +405,6 @@ fun AddGroup(
             },
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             content = {
-
                 LaunchedEffect(Unit) {
                     focusRequester.requestFocus()
                 }
@@ -435,6 +441,7 @@ fun AddGroup(
                             },
                             onClick = {
                                 tasksViewModel.addTaskGroup(groupName = text)
+                                onSheetOpen(false)
                             }
                         )
                     }
@@ -448,7 +455,8 @@ fun AddGroup(
 fun ConfigureGroup(
     isSheetOpen: Boolean,
     onSheetOpen: (Boolean) -> Unit,
-    tasksViewModel: TasksViewModel
+    tasksViewModel: TasksViewModel,
+    selectedTask: StoreGroup
 ) {
     if (isSheetOpen) {
         ModalBottomSheet(
@@ -458,11 +466,14 @@ fun ConfigureGroup(
                     headlineContent = { Text(text = "Rename List") }, modifier =
                     Modifier.clickable(
                         onClick = {
+
                         })
                 )
                 ListItem(
                     headlineContent = { Text(text = "Delete List") },
                     modifier = Modifier.clickable(onClick = {
+                        tasksViewModel.deleteTaskGroup(selectedTask.groupName)
+                        onSheetOpen(false)
                     })
                 )
             },
@@ -477,6 +488,7 @@ val tasksList = mutableListOf(
     "Go for a run"
 )
 
+
 enum class BottomSheetTasks {
     AddGroup,
     AddTasks,
@@ -490,11 +502,11 @@ fun BottomSheetDelegate(
     bottomSheetTasks: BottomSheetTasks,
     tasksViewModel: TasksViewModel,
     isSheetOpen: Boolean,
-    onSheetOpen: (Boolean) -> Unit
+    onSheetOpen: (Boolean) -> Unit,
+    selectedTask: StoreGroup
 ) {
     val sheetState = rememberModalBottomSheetState()
 
-    val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
 
     when (bottomSheetTasks) {
         BottomSheetTasks.AddTasks -> {
@@ -513,7 +525,8 @@ fun BottomSheetDelegate(
             ConfigureGroup(
                 isSheetOpen = isSheetOpen,
                 onSheetOpen = onSheetOpen,
-                tasksViewModel = tasksViewModel
+                tasksViewModel = tasksViewModel,
+                selectedTask = selectedTask
             )
         }
 

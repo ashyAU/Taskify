@@ -35,7 +35,11 @@ interface TasksDao {
 
     @Query("DELETE FROM TASKGROUP WHERE groupName = :groupName")
     suspend fun deleteTaskGroup(groupName: String)
+
+    @Query("UPDATE TASKGROUP SET groupName = :newGroupName WHERE id = :id")
+    suspend fun updateTaskGroupName(id: Int, newGroupName: String)
 }
+
 
 @Database(
     entities = [TasksGroup::class],
@@ -74,6 +78,12 @@ class TasksViewModel @Inject constructor(private val tasksDao: TasksDao): ViewMo
     fun deleteTaskGroup(groupName: String) {
         viewModelScope.launch {
             tasksDao.deleteTaskGroup(groupName = groupName)
+        }
+    }
+    fun updateTaskName(id: Int, newGroupName: String)
+    {
+        viewModelScope.launch {
+            tasksDao.updateTaskGroupName(id, newGroupName)
         }
     }
 
