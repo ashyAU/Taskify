@@ -32,7 +32,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,51 +41,70 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
-import com.example.remindme.database.TasksViewModel
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SlotModalBottomSheet(
-    sheetState: SheetState = rememberModalBottomSheetState(),
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit,
-    footerContent: @Composable (() -> Unit)? = null
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        sheetState = sheetState
-    ) {
-        content()
-        Spacer(modifier = Modifier.padding(16.dp))
-        footerContent?.invoke()
-    }
-}
-
+@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen() {
     val sheetState: SheetState = rememberModalBottomSheetState()
+    var isSheetOpen by remember { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
+
     var bottomSheetContent by remember { mutableStateOf(BottomSheetContent.DEFAULT) }
+
+    TasksTabRow(
+        bottomSheetContent = { bottomSheetContent = it },
+        onSheetOpen = { isSheetOpen = it })
+
+    if (isSheetOpen) {
+        SlotModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                coroutineScope.launch {
+                    sheetState.hide()
+                }
+                isSheetOpen = false
+            },
+            content = {
+                BottomSheetContentHeader(bottomSheetContent = bottomSheetContent,
+                    onDismiss = {
+                        coroutineScope.launch {
+                            sheetState.hide()
+                            isSheetOpen = false
+                        }
+                    })
+            }
+        )
+    }
 
 }
 
-enum class BottomSheetContent {
-    DEFAULT, TASKSADD, GROUPADD, GROUPRENAME, GROUPOPTIONS
+@Composable
+fun BottomSheetContentHeader(bottomSheetContent: BottomSheetContent, onDismiss: () -> Unit) {
+    when (bottomSheetContent) {
+        BottomSheetContent.GROUPADD -> {
+            GroupAddContent(onDismiss)
+        }
+        BottomSheetContent.DEFAULT -> {
+        }
+        BottomSheetContent.TASKSADD -> {
+        }
+        BottomSheetContent.GROUPRENAME -> {
+        }
+        BottomSheetContent.GROUPOPTIONS -> {
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@Preview
 @Composable
-fun TasksTabRow() {
+fun TasksTabRow(
+    bottomSheetContent: ((BottomSheetContent) -> Unit),
+    onSheetOpen: (Boolean) -> Unit
+) {
     var selectedTabIndex by remember {
         mutableIntStateOf(0)
     }
@@ -98,7 +116,8 @@ fun TasksTabRow() {
         selectedTabIndex = pagerState.targetPage
     }
     // todo, remove the use of dummy data and access the db directly
-    /*    val tasksViewModel: TasksViewModel = hiltViewModel()
+    /*
+        val tasksViewModel: TasksViewModel = hiltViewModel()
         val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
         */
 
@@ -116,14 +135,23 @@ fun TasksTabRow() {
             LeadingIconTab(
                 selected = false,
                 onClick = {
-                    // todo add the groupname bottomsheet here.
+                    onSheetOpen(true)
+                    bottomSheetContent(BottomSheetContent.GROUPADD)
                 },
-                text = { Text("New list")},
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "New group list") }
+                text = { Text("New list") },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "New group list"
+                    )
+                }
             )
         }
-        HorizontalPager(state = pagerState, modifier = Modifier
-            .fillMaxWidth().weight(1f)){ index ->
+        HorizontalPager(
+            state = pagerState, modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) { index ->
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(tabRowMock[index])
             }
@@ -132,9 +160,26 @@ fun TasksTabRow() {
 }
 
 
-data class TabItem(
-    val title: String
-)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SlotModalBottomSheet(
+    sheetState: SheetState = rememberModalBottomSheetState(),
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit,
+    footerContent: @Composable (() -> Unit)? = null
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+    ) {
+        content()
+    }
+}
+
+enum class BottomSheetContent {
+    DEFAULT, TASKSADD, GROUPADD, GROUPRENAME, GROUPOPTIONS
+}
+
 
 val tabRowMock = listOf(
     "Medication",
