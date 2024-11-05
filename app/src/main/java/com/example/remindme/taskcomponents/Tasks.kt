@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,13 +31,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
+import com.example.remindme.database.TasksViewModel
 import kotlinx.coroutines.launch
 
 
-@Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen() {
+fun TasksScreen(navBackStackEntry: NavBackStackEntry) {
+    val tasksViewModel: TasksViewModel = hiltViewModel(navBackStackEntry)
     val sheetState: SheetState = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
 
@@ -47,7 +52,8 @@ fun TasksScreen() {
 
     TasksTabRow(
         bottomSheetContent = { bottomSheetContent = it },
-        onSheetOpen = { isSheetOpen = it }
+        onSheetOpen = { isSheetOpen = it },
+        tasksViewModel = tasksViewModel
     )
 
     if (isSheetOpen) {
@@ -66,7 +72,8 @@ fun TasksScreen() {
                             sheetState.hide()
                             isSheetOpen = false
                         }
-                    })
+                    },
+                    tasksViewModel = tasksViewModel)
             }
         )
     }
@@ -74,21 +81,21 @@ fun TasksScreen() {
 }
 
 @Composable
-fun BottomSheetContentHeader(bottomSheetContent: BottomSheetContent, onDismiss: () -> Unit) {
+fun BottomSheetContentHeader(bottomSheetContent: BottomSheetContent, onDismiss: () -> Unit, tasksViewModel: TasksViewModel) {
     when (bottomSheetContent) {
         BottomSheetContent.GROUPADD -> {
-            GroupAddContent(onDismiss)
+            GroupAddContent(onDismiss, tasksViewModel)
         }
 
         BottomSheetContent.TASKSADD -> {
-            TaskAddContent(onDismiss)
+            TaskAddContent(onDismiss, tasksViewModel)
         }
 
         BottomSheetContent.GROUPRENAME -> {
         }
 
         BottomSheetContent.GROUPOPTIONS -> {
-            GroupOptions(onDismiss)
+            GroupOptions(onDismiss, tasksViewModel)
         }
 
         BottomSheetContent.DEFAULT -> {
@@ -100,8 +107,11 @@ fun BottomSheetContentHeader(bottomSheetContent: BottomSheetContent, onDismiss: 
 @Composable
 fun TasksTabRow(
     bottomSheetContent: ((BottomSheetContent) -> Unit),
-    onSheetOpen: (Boolean) -> Unit
+    onSheetOpen: (Boolean) -> Unit,
+    tasksViewModel: TasksViewModel
 ) {
+    val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
+
     var selectedTabIndex by remember {
         mutableIntStateOf(0)
     }
@@ -112,21 +122,16 @@ fun TasksTabRow(
     LaunchedEffect(pagerState.currentPage) {
         selectedTabIndex = pagerState.targetPage
     }
-    // todo, remove the use of dummy data and access the db directly
-    /*
-        val tasksViewModel: TasksViewModel = hiltViewModel()
-        val tasks by tasksViewModel.allTasks.collectAsState(initial = emptyList())
-        */
 
     Column(modifier = Modifier.fillMaxSize()) {
         ScrollableTabRow(
             selectedTabIndex = selectedTabIndex
         ) {
-            tabRowMock.forEachIndexed { index, groupName ->
+            tasks.forEachIndexed { index, group ->
                 Tab(
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
-                    text = { Text(text = groupName) }
+                    text = { Text(text = group.groupName) }
                 )
             }
             LeadingIconTab(

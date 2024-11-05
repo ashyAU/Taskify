@@ -38,6 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.remindme.components.DropDownMenuMain
 import com.example.remindme.setings.SettingsParent
 import com.example.remindme.stopwatch.StopwatchParent
+import com.example.remindme.taskcomponents.TasksScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -164,6 +165,7 @@ fun ParentComposable() {
         ) {
             composable(AppRoute.Alarm.route) { AlarmParent() }
             composable(AppRoute.Tasks.route) { navBackStackEntry ->
+                TasksScreen(navBackStackEntry)
             }
             composable(AppRoute.Stopwatch.route) { navBackStackEntry ->
                 StopwatchParent(

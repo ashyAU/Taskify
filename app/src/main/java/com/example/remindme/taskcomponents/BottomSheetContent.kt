@@ -23,10 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.remindme.R
+import com.example.remindme.database.TasksViewModel
 
 
 @Composable
-fun GroupAddContent(onDismiss: () -> Unit) {
+fun GroupAddContent(onDismiss: () -> Unit, tasksViewModel: TasksViewModel) {
     var text by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -48,6 +49,7 @@ fun GroupAddContent(onDismiss: () -> Unit) {
                 onClick = {
                     // todo integrate task view model
                     onDismiss()
+                    tasksViewModel.addTaskGroup(groupName = text)
 
                 },
             ) {
@@ -59,7 +61,7 @@ fun GroupAddContent(onDismiss: () -> Unit) {
 
 
 @Composable
-fun GroupOptions(onDismiss: () -> Unit) {
+fun GroupOptions(onDismiss: () -> Unit, tasksViewModel: TasksViewModel) {
     val listItems = listOf(
         Item(name = "Rename", contentDescription = "Rename the currently selected group"),
         Item(
@@ -94,7 +96,8 @@ data class Item(
 
 @Composable
 fun TaskAddContent(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    tasksViewModel: TasksViewModel
 ) {
     val icons = TaskIcons.icons
 
