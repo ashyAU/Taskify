@@ -8,9 +8,6 @@
       <SelectionState runConfigName="Taskify.app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Parent">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="TasksParent">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
@@ -21,6 +18,9 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="TasksScreen">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="TaskAddContent">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

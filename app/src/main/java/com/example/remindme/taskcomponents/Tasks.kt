@@ -1,15 +1,10 @@
 package com.example.remindme.taskcomponents
 
-import android.graphics.drawable.Icon
-import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -17,18 +12,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LeadingIconTab
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,9 +44,11 @@ fun TasksScreen() {
 
     var bottomSheetContent by remember { mutableStateOf(BottomSheetContent.DEFAULT) }
 
+
     TasksTabRow(
         bottomSheetContent = { bottomSheetContent = it },
-        onSheetOpen = { isSheetOpen = it })
+        onSheetOpen = { isSheetOpen = it }
+    )
 
     if (isSheetOpen) {
         SlotModalBottomSheet(
@@ -88,13 +79,19 @@ fun BottomSheetContentHeader(bottomSheetContent: BottomSheetContent, onDismiss: 
         BottomSheetContent.GROUPADD -> {
             GroupAddContent(onDismiss)
         }
-        BottomSheetContent.DEFAULT -> {
-        }
+
         BottomSheetContent.TASKSADD -> {
+            TaskAddContent(onDismiss)
         }
+
         BottomSheetContent.GROUPRENAME -> {
         }
+
         BottomSheetContent.GROUPOPTIONS -> {
+            GroupOptions(onDismiss)
+        }
+
+        BottomSheetContent.DEFAULT -> {
         }
     }
 }
@@ -154,6 +151,34 @@ fun TasksTabRow(
         ) { index ->
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(tabRowMock[index])
+                Column {
+
+                Button(
+
+                    onClick = {
+                        bottomSheetContent(BottomSheetContent.GROUPADD)
+                        onSheetOpen(true)
+                    }
+                ) {
+                    Text("group add")
+                }
+                Button(
+                    onClick = {
+                        bottomSheetContent(BottomSheetContent.TASKSADD)
+                        onSheetOpen(true)
+                    }
+                ) {
+                    Text("task add")
+                }
+                Button(
+                    onClick = {
+                        bottomSheetContent(BottomSheetContent.GROUPOPTIONS)
+                        onSheetOpen(true)
+                    }
+                ) {
+                    Text("group options")
+                }
+                }
             }
         }
     }
@@ -166,7 +191,6 @@ fun SlotModalBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit,
-    footerContent: @Composable (() -> Unit)? = null
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
